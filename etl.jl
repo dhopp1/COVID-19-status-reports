@@ -89,7 +89,7 @@ for state in unique(states.state)
     global all_country_data = vcat(all_country_data, gen_df(tmp.state[1], tmp.deaths, tmp.cases, tmp.date))
 end
 
-CSV.write("data/transformed_data.csv", all_country_data)
+CSV.write("plots/data/transformed_data.csv", all_country_data)
 
 # adding forecast
 function r_forecast(x, y; country, metric, r_forecast_function, time_function, h)
@@ -131,4 +131,4 @@ for country in unique(all_country_data.country)
     end
 end
 
-CSV.write("data/forecasts.csv", fc)
+CSV.write("plots/data/forecasts.csv", fc)
