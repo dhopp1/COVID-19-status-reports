@@ -1,4 +1,5 @@
 using
+CSV,
 CSVFiles,
 DataFrames,
 Dates,
@@ -79,6 +80,23 @@ end
 
 all_countries = death.country |> unique |> sort
 all_country_data = vcat([country_data(country) for country in all_countries]...)
+
+# adding world
+no_states = all_country_data[.!occursin.(":", all_country_data.country), :]
+no_states = by(no_states, :date,
+    confirmed = :confirmed => sum,
+    deaths = :deaths => sum,
+    new_cases = :new_cases => sum,
+    new_deaths = :new_deaths => sum,
+    acceleration_cases = :acceleration_cases => sum,
+    acceleration_deaths = :acceleration_deaths => sum
+)
+no_states[!, :death_rate] = no_states.deaths ./ no_states.confirmed
+no_states[!, :days_since_100] = 1:nrow(no_states)
+no_states[!, :days_since_10] = 1:nrow(no_states)
+no_states[!, :country] .= "World"
+no_states = no_states[!, names(all_country_data)]
+all_country_data = [all_country_data; no_states]
 
 # adding US states
 states_path = "covid-19-data/us-states.csv"
