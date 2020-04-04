@@ -1,0 +1,15 @@
+.bk-root .country_1 .bk-input {
+	color: white;
+	background-color: #21618C;
+	border-color: #21618C;
+}
+
+.bk-root .country_2 .bk-input {
+	color: white;
+	background-color: #ff4d4d;
+	border-color: #ff4d4d;
+}
+
+label {
+	font-weight: bold;
+}
