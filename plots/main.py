@@ -32,6 +32,8 @@ source = ColumnDataSource(data.loc[data.country == "World", :])
 source2 = ColumnDataSource(data.loc[data.country == "None", :])
 fc_source_cases = ColumnDataSource(forecasts.loc[(forecasts.country == "World") & (forecasts.metric == "cases"), :])
 fc_source_deaths = ColumnDataSource(forecasts.loc[(forecasts.country == "World") & (forecasts.metric == "deaths"), :])
+fc_source_cases2 = ColumnDataSource(forecasts.loc[(forecasts.country == "None") & (forecasts.metric == "cases"), :])
+fc_source_deaths2 = ColumnDataSource(forecasts.loc[(forecasts.country == "None") & (forecasts.metric == "deaths"), :])
 
 
 # defining plots
@@ -40,15 +42,15 @@ def line_plot(source, p, color, country, metric):
     p.line('x_col', metric, source=source, color=color)
     return p
 
-def forecast_plot(fc_source, data_source, p, actual_color, fc_color, metric):
+def forecast_plot(fc_source, data_source, p, actual_color, fc_color, metric, color_80, color_95):
     p.line("date", metric, source=data_source, color=actual_color, name="actual")
     p.line("date", "point_forecast", source=fc_source, color=fc_color, name="forecast")
     p.line("date", "lo_80", source=fc_source, color=fc_color, name="lo_80", line_alpha=0)
     p.line("date", "hi_80", source=fc_source, color=fc_color, name="hi_80", line_alpha=0)
     p.line("date", "lo_95", source=fc_source, color=fc_color, name="lo_95", line_alpha=0)
     p.line("date", "hi_95", source=fc_source, color=fc_color, name="hi_95", line_alpha=0)
-    p.varea(x="date", y1="lo_80", y2="hi_80", fill_alpha=0.5, fill_color="#6666ff", source=fc_source)
-    p.varea(x="date", y1="lo_95", y2="hi_95", fill_alpha=0.5, fill_color="#ccccff", source=fc_source)
+    p.varea(x="date", y1="lo_80", y2="hi_80", fill_alpha=0.5, fill_color=color_80, source=fc_source)
+    p.varea(x="date", y1="lo_95", y2="hi_95", fill_alpha=0.5, fill_color=color_95, source=fc_source)
     return p
 
 def add_plot(plot_function, metric, title):
@@ -64,12 +66,12 @@ def add_plot(plot_function, metric, title):
 
     return p
 
-def add_forecast_plot(fc_source, data_source, p, metric):
+def add_forecast_plot(fc_source, data_source, p, metric, actual_color, fc_color, color_80, color_95):
     if metric == "confirmed":
         metric_word = "Cases"
     elif metric == "deaths":
         metric_word = "Deaths"
-    p = forecast_plot(fc_source=fc_source, data_source=data_source, p=p, actual_color="#21618C", fc_color="#0000ff", metric=metric)
+    p = forecast_plot(fc_source=fc_source, data_source=data_source, p=p, actual_color=actual_color, fc_color=fc_color, metric=metric, color_80=color_80, color_95=color_95)
     p.add_tools(
         HoverTool(tooltips=[('Country', '@country'), ("Date", "@date_string"), (f"{metric_word} Actual",'@' + metric + '{,}')], names=["actual"]),
         HoverTool(tooltips=[('Country', '@country'), ("Date", "@date_string"), (f"{metric_word} Forecast",'@point_forecast{,}')], names=["forecast"]),
@@ -107,6 +109,16 @@ def country_2_update_plot(attr, old, new):
         (data.date >= datetime.datetime.fromtimestamp(date_range.value[0]/1000)) & 
         (data.date <= datetime.datetime.fromtimestamp(date_range.value[1]/1000)) &
         (data.country == new)
+    , :].reset_index(drop=True)
+    fc_source_cases2.data = forecasts.loc[
+        (forecasts.country == new) & 
+        (forecasts.metric == "cases") &
+        (forecasts.date >= datetime.datetime.fromtimestamp(date_range.value[0]/1000))
+    , :].reset_index(drop=True)
+    fc_source_deaths2.data = forecasts.loc[
+        (forecasts.country == new) & 
+        (forecasts.metric == "deaths") &
+        (forecasts.date >= datetime.datetime.fromtimestamp(date_range.value[0]/1000))
     , :].reset_index(drop=True)
 
 def date_range_update_plot(attr, old, new):
@@ -148,13 +160,12 @@ def x_axis_update_plot(attr, old, new):
         (data.country == select2.value)
     , :].reset_index(drop=True)
 
-def movingaverage (values, window):
-    weights = np.repeat(1.0, window)/window
-    sma = np.convolve(values, weights, 'valid')
-    return sma
-
 # for some reason world smoothing gives weird curves with rolling.mean
 def world_fix(metric, smooth_name, window):
+    def movingaverage (values, window):
+        weights = np.repeat(1.0, window)/window
+        sma = np.convolve(values, weights, 'valid')
+        return sma
     proper = pd.Series(movingaverage(data.loc[data.country == "World", metric], window))
     proper = pd.Series([np.nan] * (window-1)).append(proper)
     proper.index = data.loc[data.country == "World", smooth_name].index
@@ -217,9 +228,11 @@ death_accel = add_plot(line_plot, 'smooth_accel_deaths', 'Deaths Acceleration')
 
 #forecast plots
 cases_fc_plot = figure(tools=["reset", "pan", "zoom_in", "zoom_out","save"], title="Cases Forecast")
-cases_fc_plot = add_forecast_plot(fc_source_cases, source, cases_fc_plot, "confirmed")
+cases_fc_plot = add_forecast_plot(fc_source_cases, source, cases_fc_plot, "confirmed", actual_color="#21618C", fc_color="#0000ff", color_80="#6666ff", color_95="#ccccff")
+cases_fc_plot = add_forecast_plot(fc_source_cases2, source2, cases_fc_plot, "confirmed", actual_color="#ff4d4d", fc_color="#990000", color_80="#ff9999", color_95="#ffcccc")
 deaths_fc_plot = figure(tools=["reset", "pan", "zoom_in", "zoom_out","save"], title="Deaths Forecast")
-deaths_fc_plot = add_forecast_plot(fc_source_deaths, source, deaths_fc_plot, "deaths")
+deaths_fc_plot = add_forecast_plot(fc_source_deaths, source, deaths_fc_plot, "deaths", actual_color="#21618C", fc_color="#0000ff", color_80="#6666ff", color_95="#ccccff")
+deaths_fc_plot = add_forecast_plot(fc_source_deaths2, source2, deaths_fc_plot, "deaths", actual_color="#ff4d4d", fc_color="#990000", color_80="#ff9999", color_95="#ffcccc")
 
 # initialize plots with date format
 all_plots = [confirmed, deaths, new_cases, new_deaths, case_accel, death_accel, cases_fc_plot, deaths_fc_plot]
