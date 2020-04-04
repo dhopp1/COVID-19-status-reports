@@ -2,21 +2,25 @@ from bokeh.plotting import figure
 from bokeh.plotting import ColumnDataSource, curdoc
 from bokeh.io import output_file, show
 from bokeh.layouts import column, row
-from bokeh.models import DatetimeTickFormatter, HoverTool, NumeralTickFormatter, Select, Span
+from bokeh.models import DateRangeSlider, DatetimeTickFormatter, HoverTool, NumeralTickFormatter, Select, Span
 import pandas as pd
+import datetime
 
 # data read
 data = pd.read_csv("plots/data/transformed_data.csv", parse_dates=["date"])
 data["date_string"] = data.date.dt.strftime("%Y-%0m-%0d")
+data.date = [x.to_pydatetime() for x in data.date]
 data["x_col"] = data.date
 forecasts = pd.read_csv("plots/data/forecasts.csv", parse_dates=["date"])
 forecasts["date_string"] = forecasts.date.dt.strftime("%Y-%0m-%0d")
+forecasts.date = [x.to_pydatetime() for x in forecasts.date]
 forecasts["x_col"] = forecasts.date
 countries = list(data.country.unique())
 countries.sort()
 countries.remove("World")
 countries = ["World", "None"] + countries
-dates = list(data.date.dt.strftime("%Y-%0m-%0d").unique())
+#dates = list(data.date.dt.strftime("%Y-%0m-%0d").unique())
+dates = list(data.date.unique())
 dates.sort()
 
 source = ColumnDataSource(data.loc[data.country == "World", :])
@@ -45,39 +49,27 @@ def add_plot(plot_function, metric, title):
 # selector/dropdown functions
 def country_1_update_plot(attr, old, new):
     source.data = data.loc[
-        (data.date >= pd.to_datetime(select3.value)) & 
-        (data.date <= pd.to_datetime(select4.value)) &
+        (data.date >= datetime.datetime.fromtimestamp(date_range.value[0]/1000)) &
+        (data.date <= datetime.datetime.fromtimestamp(date_range.value[1]/1000)) &
         (data.country == new)
     , :].reset_index(drop=True)
     
 def country_2_update_plot(attr, old, new):
     source2.data = data.loc[
-        (data.date >= pd.to_datetime(select3.value)) & 
-        (data.date <= pd.to_datetime(select4.value)) &
+        (data.date >= datetime.datetime.fromtimestamp(date_range.value[0]/1000)) &
+        (data.date <= datetime.datetime.fromtimestamp(date_range.value[1]/1000)) &
         (data.country == new)
     , :].reset_index(drop=True)
 
-def date_start_update_plot(attr, old, new):
+def date_range_update_plot(attr, old, new):
     source.data = data.loc[
-        (data.date >= pd.to_datetime(new)) & 
-        (data.date <= pd.to_datetime(select4.value)) &
+        (data.date >= datetime.datetime.fromtimestamp(new[0]/1000)) &
+        (data.date <= datetime.datetime.fromtimestamp(new[1]/1000)) &
         (data.country == select1.value)
     , :].reset_index(drop=True)
     source2.data = data.loc[
-        (data.date >= pd.to_datetime(new)) & 
-        (data.date <= pd.to_datetime(select4.value)) &
-        (data.country == select2.value)
-    , :].reset_index(drop=True)
-
-def date_end_update_plot(attr, old, new):
-    source.data = data.loc[
-        (data.date >= pd.to_datetime(select3.value)) & 
-        (data.date <= pd.to_datetime(new)) &
-        (data.country == select1.value)
-    , :].reset_index(drop=True)
-    source2.data = data.loc[
-        (data.date >= pd.to_datetime(select3.value)) & 
-        (data.date <= pd.to_datetime(new)) &
+        (data.date >= datetime.datetime.fromtimestamp(new[0]/1000)) &
+        (data.date <= datetime.datetime.fromtimestamp(new[1]/1000)) &
         (data.country == select2.value)
     , :].reset_index(drop=True)
 
@@ -98,13 +90,13 @@ def x_axis_update_plot(attr, old, new):
             p.xaxis.formatter=NumeralTickFormatter(format="0,0")
     data.x_col = data[x_col]
     source.data = data.loc[
-        (data.date >= pd.to_datetime(select3.value)) & 
-        (data.date <= pd.to_datetime(select4.value)) &
+        (data.date >= datetime.datetime.fromtimestamp(date_range.value[0]/1000)) & 
+        (data.date <= datetime.datetime.fromtimestamp(date_range.value[1]/1000)) &
         (data.country == select1.value)
     , :].reset_index(drop=True)
     source2.data = data.loc[
-        (data.date >= pd.to_datetime(select3.value)) & 
-        (data.date <= pd.to_datetime(select4.value)) &
+        (data.date >= datetime.datetime.fromtimestamp(date_range.value[0]/1000)) & 
+        (data.date <= datetime.datetime.fromtimestamp(date_range.value[1]/1000)) &
         (data.country == select2.value)
     , :].reset_index(drop=True)
 
@@ -116,14 +108,11 @@ select1.on_change("value", country_1_update_plot)
 select2 = Select(title="Country 2", options=countries, value="None", css_classes=["country_2"])
 select2.on_change("value", country_2_update_plot)
 
-select3 = Select(title="Date Start", options=dates, value=dates[0])
-select3.on_change("value", date_start_update_plot)
-
-select4 = Select(title="Date End", options=dates, value=dates[len(dates)-1])
-select4.on_change("value", date_end_update_plot)
-
 x_col = Select(title="X Axis", options=["Date", "Days since 100th case", "Days since 10th death"], value="Date")
 x_col.on_change("value", x_axis_update_plot)
+
+date_range = DateRangeSlider(title="Date Range", end=dates[len(dates)-1], start=dates[0], value=(dates[0], dates[len(dates)-1]))
+date_range.on_change("value", date_range_update_plot)
 
 
 # plots
@@ -134,6 +123,7 @@ new_deaths = add_plot(line_plot, 'new_deaths', 'New Deaths')
 case_accel = add_plot(line_plot, 'acceleration_cases', 'Cases Acceleration')
 death_accel = add_plot(line_plot, 'acceleration_deaths', 'Deaths Acceleration')
 all_plots = [confirmed, deaths, new_cases, new_deaths, case_accel, death_accel]
+
 # initialize plots with date format
 for p in all_plots:
     p.xaxis.formatter=DatetimeTickFormatter(days=["%d %B %Y"],months=["%d %B %Y"],years=["%d %B %Y"])
@@ -142,7 +132,7 @@ for p in all_plots:
 # final layout
 layout = column(
     row(select1, select2),
-    row(select3, select4, x_col), 
+    row(date_range, x_col),
     row(confirmed, deaths),
     row(new_cases, new_deaths),
     row(case_accel, death_accel)
