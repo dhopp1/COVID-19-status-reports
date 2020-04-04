@@ -2,7 +2,7 @@ from bokeh.plotting import figure
 from bokeh.plotting import ColumnDataSource, curdoc
 from bokeh.io import output_file, show
 from bokeh.layouts import column, row
-from bokeh.models import DateRangeSlider, DatetimeTickFormatter, HoverTool, NumeralTickFormatter, Select, Span
+from bokeh.models import Band, DateRangeSlider, DatetimeTickFormatter, HoverTool, NumeralTickFormatter, Select, Span
 import numpy as np
 import pandas as pd
 import datetime
@@ -10,7 +10,6 @@ import datetime
 # data read
 data = pd.read_csv("plots/data/transformed_data.csv", parse_dates=["date"])
 data["date_string"] = data.date.dt.strftime("%Y-%0m-%0d")
-#data.date = [x.to_pydatetime() for x in data.date]
 data["x_col"] = data.date
 data["smooth_new_cases"] = data.new_cases
 data["smooth_new_deaths"] = data.new_deaths
@@ -19,7 +18,6 @@ data["smooth_accel_deaths"] = data.acceleration_deaths
 
 forecasts = pd.read_csv("plots/data/forecasts.csv", parse_dates=["date"])
 forecasts["date_string"] = forecasts.date.dt.strftime("%Y-%0m-%0d")
-#forecasts.date = [x.to_pydatetime() for x in forecasts.date]
 forecasts["x_col"] = forecasts.date
 
 countries = list(data.country.unique())
@@ -32,6 +30,8 @@ dates.sort()
 
 source = ColumnDataSource(data.loc[data.country == "World", :])
 source2 = ColumnDataSource(data.loc[data.country == "None", :])
+fc_source_cases = ColumnDataSource(forecasts.loc[(forecasts.country == "World") & (forecasts.metric == "cases"), :])
+fc_source_deaths = ColumnDataSource(forecasts.loc[(forecasts.country == "World") & (forecasts.metric == "deaths"), :])
 
 
 # defining plots
@@ -40,16 +40,47 @@ def line_plot(source, p, color, country, metric):
     p.line('x_col', metric, source=source, color=color)
     return p
 
+def forecast_plot(fc_source, data_source, p, actual_color, fc_color, metric):
+    p.line("date", metric, source=data_source, color=actual_color, name="actual")
+    p.line("date", "point_forecast", source=fc_source, color=fc_color, name="forecast")
+    p.line("date", "lo_80", source=fc_source, color=fc_color, name="lo_80", line_alpha=0)
+    p.line("date", "hi_80", source=fc_source, color=fc_color, name="hi_80", line_alpha=0)
+    p.line("date", "lo_95", source=fc_source, color=fc_color, name="lo_95", line_alpha=0)
+    p.line("date", "hi_95", source=fc_source, color=fc_color, name="hi_95", line_alpha=0)
+    p.varea(x="date", y1="lo_80", y2="hi_80", fill_alpha=0.5, fill_color="#6666ff", source=fc_source)
+    p.varea(x="date", y1="lo_95", y2="hi_95", fill_alpha=0.5, fill_color="#ccccff", source=fc_source)
+    return p
+
 def add_plot(plot_function, metric, title):
     p = figure(tools=["reset", "pan", "zoom_in", "zoom_out","save"], title=title)
     plot_function(source, p, "#21618C", select1.value, metric)
     plot_function(source2, p, "#ff4d4d", select1.value, metric)
     p.add_tools(
-        HoverTool(tooltips=[('Country', '@country'), ("Date", "@date_string"), (title,f'@{metric}')])
+        HoverTool(tooltips=[('Country', '@country'), ("Date", "@date_string"), (title,'@' + metric + '{,}')])
     )
     p.xaxis.major_label_orientation = 3.14/4
     p.renderers.extend([Span(location=0, dimension='width', line_color='black', line_width=1)]) # adding a horizontal black line at 0
-    p.left[0].formatter.use_scientific = False
+    p.yaxis.formatter=NumeralTickFormatter(format=",")
+
+    return p
+
+def add_forecast_plot(fc_source, data_source, p, metric):
+    if metric == "confirmed":
+        metric_word = "Cases"
+    elif metric == "deaths":
+        metric_word = "Deaths"
+    p = forecast_plot(fc_source=fc_source, data_source=data_source, p=p, actual_color="#21618C", fc_color="#0000ff", metric=metric)
+    p.add_tools(
+        HoverTool(tooltips=[('Country', '@country'), ("Date", "@date_string"), (f"{metric_word} Actual",'@' + metric + '{,}')], names=["actual"]),
+        HoverTool(tooltips=[('Country', '@country'), ("Date", "@date_string"), (f"{metric_word} Forecast",'@point_forecast{,}')], names=["forecast"]),
+        HoverTool(tooltips=[('Country', '@country'), ("Date", "@date_string"), ("Lower 80% Confidence Interval",'@lo_80{,}')], names=["lo_80"]),
+        HoverTool(tooltips=[('Country', '@country'), ("Date", "@date_string"), ("Upper 80% Confidence Interval",'@hi_80{,}')], names=["hi_80"]),
+        HoverTool(tooltips=[('Country', '@country'), ("Date", "@date_string"), ("Lower 95% Confidence Interval",'@lo_95{,}')], names=["lo_95"]),
+        HoverTool(tooltips=[('Country', '@country'), ("Date", "@date_string"), ("Upper 95% Confidence Interval",'@hi_95{,}')], names=["hi_95"]),
+    )
+    p.xaxis.major_label_orientation = 3.14/4
+    p.renderers.extend([Span(location=0, dimension='width', line_color='black', line_width=1)]) # adding a horizontal black line at 0
+    p.yaxis.formatter=NumeralTickFormatter(format=",")
     return p
 
 
@@ -60,7 +91,17 @@ def country_1_update_plot(attr, old, new):
         (data.date <= datetime.datetime.fromtimestamp(date_range.value[1]/1000)) &
         (data.country == new)
     , :].reset_index(drop=True)
-    
+    fc_source_cases.data = forecasts.loc[
+        (forecasts.country == new) & 
+        (forecasts.metric == "cases") &
+        (forecasts.date >= datetime.datetime.fromtimestamp(date_range.value[0]/1000))
+    , :].reset_index(drop=True)
+    fc_source_deaths.data = forecasts.loc[
+        (forecasts.country == new) & 
+        (forecasts.metric == "deaths") &
+        (forecasts.date >= datetime.datetime.fromtimestamp(date_range.value[0]/1000))
+    , :].reset_index(drop=True)
+
 def country_2_update_plot(attr, old, new):
     source2.data = data.loc[
         (data.date >= datetime.datetime.fromtimestamp(date_range.value[0]/1000)) & 
@@ -85,15 +126,15 @@ def x_axis_update_plot(attr, old, new):
     x_col = "date"
     if new == "Date":
         x_col = "date"
-        for p in all_plots:
+        for p in all_plots[:-2]:
             p.xaxis.formatter=DatetimeTickFormatter(days=["%d %B %Y"],months=["%d %B %Y"],years=["%d %B %Y"])
     elif new == "Days since 100th case":
         x_col = "days_since_100"
-        for p in all_plots:
+        for p in all_plots[:-2]:
             p.xaxis.formatter=NumeralTickFormatter(format="0,0")
     elif new == "Days since 10th death":
         x_col = "days_since_10"
-        for p in all_plots: 
+        for p in all_plots[:-2]: 
             p.xaxis.formatter=NumeralTickFormatter(format="0,0")
     data.x_col = data[x_col]
     source.data = data.loc[
@@ -173,9 +214,15 @@ new_cases = add_plot(line_plot, 'smooth_new_cases', 'New Cases')
 new_deaths = add_plot(line_plot, 'smooth_new_deaths', 'New Deaths')
 case_accel = add_plot(line_plot, 'smooth_accel_cases', 'Cases Acceleration')
 death_accel = add_plot(line_plot, 'smooth_accel_deaths', 'Deaths Acceleration')
-all_plots = [confirmed, deaths, new_cases, new_deaths, case_accel, death_accel]
+
+#forecast plots
+cases_fc_plot = figure(tools=["reset", "pan", "zoom_in", "zoom_out","save"], title="Cases Forecast")
+cases_fc_plot = add_forecast_plot(fc_source_cases, source, cases_fc_plot, "confirmed")
+deaths_fc_plot = figure(tools=["reset", "pan", "zoom_in", "zoom_out","save"], title="Deaths Forecast")
+deaths_fc_plot = add_forecast_plot(fc_source_deaths, source, deaths_fc_plot, "deaths")
 
 # initialize plots with date format
+all_plots = [confirmed, deaths, new_cases, new_deaths, case_accel, death_accel, cases_fc_plot, deaths_fc_plot]
 for p in all_plots:
     p.xaxis.formatter=DatetimeTickFormatter(days=["%d %B %Y"],months=["%d %B %Y"],years=["%d %B %Y"])
 
@@ -187,7 +234,8 @@ layout = column(
     row(x_col, smoothing),
     row(confirmed, deaths),
     row(new_cases, new_deaths),
-    row(case_accel, death_accel)
+    row(case_accel, death_accel),
+    row(cases_fc_plot, deaths_fc_plot)
 )
 curdoc().add_root(layout)
 curdoc().title = "COVID-19 Status Report"
