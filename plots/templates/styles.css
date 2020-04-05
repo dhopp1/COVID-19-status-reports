@@ -13,3 +13,11 @@
 label {
 	font-weight: bold;
 }
+
+body {
+  	font-family: Helvetica, Arial, Sans-Serif;
+  	/*width: 1200px;*/
+  	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+}

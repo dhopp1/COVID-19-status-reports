@@ -1,7 +1,7 @@
 from bokeh.plotting import figure
 from bokeh.plotting import ColumnDataSource, curdoc
 from bokeh.io import output_file, show
-from bokeh.layouts import column, row
+from bokeh.layouts import column, row, gridplot
 from bokeh.models import Band, DateRangeSlider, DatetimeTickFormatter, HoverTool, NumeralTickFormatter, Select, Span
 from bokeh.models.widgets import Tabs, Panel
 import numpy as np
@@ -55,7 +55,7 @@ def forecast_plot(fc_source, data_source, p, actual_color, fc_color, metric, col
     return p
 
 def add_plot(plot_function, metric, title, y_axis_type):
-    p = figure(tools=["reset", "pan", "zoom_in", "zoom_out","save"], title=title, y_axis_type=y_axis_type)
+    p = figure(tools=["reset","save"], title=title, y_axis_type=y_axis_type)
     plot_function(source, p, "#21618C", select1.value, metric)
     plot_function(source2, p, "#ff4d4d", select1.value, metric)
     p.add_tools(
@@ -139,15 +139,15 @@ def x_axis_update_plot(attr, old, new):
     x_col = "date"
     if new == "Date":
         x_col = "date"
-        for p in all_plots[:-2]:
+        for p in all_plots[:-4]:
             p.xaxis.formatter=DatetimeTickFormatter(days=["%d %B %Y"],months=["%d %B %Y"],years=["%d %B %Y"])
     elif new == "Days since 100th case":
         x_col = "days_since_100"
-        for p in all_plots[:-2]:
+        for p in all_plots[:-4]:
             p.xaxis.formatter=NumeralTickFormatter(format="0,0")
     elif new == "Days since 10th death":
         x_col = "days_since_10"
-        for p in all_plots[:-2]: 
+        for p in all_plots[:-4]: 
             p.xaxis.formatter=NumeralTickFormatter(format="0,0")
     data.x_col = data[x_col]
     source.data = data.loc[
@@ -221,23 +221,47 @@ smoothing.on_change("value", smoothing_update)
 
 
 # plots
-confirmed = add_plot(line_plot, 'confirmed', 'Confirmed Cases', "linear")
-deaths = add_plot(line_plot, 'deaths', 'Deaths', "linear")
-new_cases = add_plot(line_plot, 'smooth_new_cases', 'New Cases', "linear")
-new_deaths = add_plot(line_plot, 'smooth_new_deaths', 'New Deaths', "linear")
-case_accel = add_plot(line_plot, 'smooth_accel_cases', 'Cases Acceleration', "linear")
-death_accel = add_plot(line_plot, 'smooth_accel_deaths', 'Deaths Acceleration', "linear")
+plots = {}
+metrics = {'confirmed':'Confirmed Cases', 'deaths':'Deaths', 'smooth_new_cases':'New Cases', 'smooth_new_deaths':'New Deaths', 'smooth_accel_cases':'Cases Acceleration', 'smooth_accel_deaths':'Deaths Acceleration'}
+axis_types = ['linear', 'log']
+for metric, title in metrics.items():
+    for axis_type in axis_types:
+        plots[metric + axis_type] = add_plot(line_plot, metric, title, axis_type)
 
-#forecast plots
-cases_fc_plot = figure(tools=["reset", "pan", "zoom_in", "zoom_out","save"], title="Cases Forecast", y_axis_type="linear")
-cases_fc_plot = add_forecast_plot(fc_source_cases, source, cases_fc_plot, "confirmed", actual_color="#21618C", fc_color="#0000ff", color_80="#6666ff", color_95="#ccccff")
-cases_fc_plot = add_forecast_plot(fc_source_cases2, source2, cases_fc_plot, "confirmed", actual_color="#ff4d4d", fc_color="#990000", color_80="#ff9999", color_95="#ffcccc")
-deaths_fc_plot = figure(tools=["reset", "pan", "zoom_in", "zoom_out","save"], title="Deaths Forecast", y_axis_type="linear")
-deaths_fc_plot = add_forecast_plot(fc_source_deaths, source, deaths_fc_plot, "deaths", actual_color="#21618C", fc_color="#0000ff", color_80="#6666ff", color_95="#ccccff")
-deaths_fc_plot = add_forecast_plot(fc_source_deaths2, source2, deaths_fc_plot, "deaths", actual_color="#ff4d4d", fc_color="#990000", color_80="#ff9999", color_95="#ffcccc")
+# forecast plots
+metrics = {'confirmed':'Cases Forecast', 'deaths':'Deaths Forecast'}
+for metric, title in metrics.items():
+    for axis_type in axis_types:
+        if metric == 'confirmed':
+            sc = fc_source_cases
+            sc2 = fc_source_cases2
+        else:
+            sc = fc_source_deaths
+            sc2 = fc_source_deaths2
+        p = figure(tools=["reset", "save"], title=title, y_axis_type=axis_type)
+        p = add_forecast_plot(sc, source, p, metric, actual_color="#21618C", fc_color="#0000ff", color_80="#6666ff", color_95="#ccccff")
+        p = add_forecast_plot(sc2, source2, p, metric, actual_color="#ff4d4d", fc_color="#990000", color_80="#ff9999", color_95="#ffcccc")
+        plots['forecast_' + metric + axis_type] = p
+
+# log-linear tabs
+linear_tab_layout = column(
+    row(plots['confirmedlinear'], plots['deathslinear']),
+    row(plots['smooth_new_caseslinear'], plots['smooth_new_deathslinear']),
+    row(plots['smooth_accel_caseslinear'], plots['smooth_accel_deathslinear']),
+    row(plots['forecast_confirmedlinear'], plots['forecast_deathslinear'])
+)
+log_tab_layout = column(
+    row(plots['confirmedlog'], plots['deathslog']),
+    row(plots['smooth_new_caseslog'], plots['smooth_new_deathslog']),
+    row(plots['smooth_accel_caseslog'], plots['smooth_accel_deathslog']),
+    row(plots['forecast_confirmedlog'], plots['forecast_deathslog'])
+)
+linear_tab = Panel(child=linear_tab_layout, title='Linear Scale')
+log_tab = Panel(child=log_tab_layout, title='Log Scale')
+tabs = Tabs(tabs=[linear_tab, log_tab])
 
 # initialize plots with date format
-all_plots = [confirmed, deaths, new_cases, new_deaths, case_accel, death_accel, cases_fc_plot, deaths_fc_plot]
+all_plots = list(plots.values())
 for p in all_plots:
     p.xaxis.formatter=DatetimeTickFormatter(days=["%d %B %Y"],months=["%d %B %Y"],years=["%d %B %Y"])
 
@@ -247,10 +271,7 @@ layout = column(
     row(select1, select2),
     row(x_col, smoothing),
     row(date_range),
-    row(confirmed, deaths),
-    row(new_cases, new_deaths),
-    row(case_accel, death_accel),
-    row(cases_fc_plot, deaths_fc_plot)
+    row(tabs)
 )
 curdoc().add_root(layout)
 curdoc().title = "COVID-19 Status Report"

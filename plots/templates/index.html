@@ -10,6 +10,13 @@
     </head>
     <body>
     	<h1>COVID-19 Status Reports</h1>
+    	<p>
+    		This page uses data from <a href="https://github.com/CSSEGISandData/COVID-19">Johns Hopkins CSSE</a> and <a href="https://github.com/nytimes/covid-19-data">the New York Times</a> (for US state level data) to create charts on the status of COVID-19 cases and deaths around the world. It is updated once a day around 10:00am CET. The code used to make this site is hosted <a href="https://github.com/dhopp1/COVID-19-status-reports">here</a>. The moving average smoothing dropdown applies only to the new cases/deaths graphs and cases/deaths acceleration graphs, as these can change greatly from day to day, making trends hard to spot.
+    	</p>
+    	<h3>Forecasts</h3>
+    	<p>
+			Forecast numbers and plots are created using <a href="https://otexts.com/fpp2/holt.html">Holt's linear trend method with dampening</a>. This is a linear model, which means it probably significantly underestimates countries that are experiencing the acceleration phase of their epidemics. It will probably be better at forecasting countries at a more mature phase, such as Italy or Spain. Important to note is that this is just one of many methods that can forecast the data, and I have not spent a significant amount of time validating it. I may spend more time in the future investigating and adding better forecasting methods. Plots display the point forecast and 80% prediction interval (darker shading), and 95% prediction interval (lighter shading).
+    	</p>
       {{ plot_div|indent(8) }}
       {{ plot_script|indent(8) }}
     </body>
