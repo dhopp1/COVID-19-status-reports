@@ -22,10 +22,15 @@ forecasts = pd.read_csv("plots/data/forecasts.csv", parse_dates=["date"])
 forecasts["date_string"] = forecasts.date.dt.strftime("%Y-%0m-%0d")
 forecasts["x_col"] = forecasts.date
 
+groups = pd.read_csv("plots/data/country_groups.csv")
+groups = list(groups.group.unique())
+groups.sort()
+
 countries = list(data.country.unique())
 countries.sort()
+countries = [x for x in countries if x not in groups]
 countries.remove("World")
-countries = ["World", "None"] + countries
+countries = ["World", "None"] + groups + ["---"] + countries
 
 dates = list(data.date.unique())
 dates.sort()

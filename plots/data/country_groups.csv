@@ -1,0 +1,408 @@
+group,country
+EU,Austria
+EU,Belgium
+EU,Bulgaria
+EU,Croatia
+EU,Cyprus
+EU,Czechia
+EU,Denmark
+EU,Estonia
+EU,Finland
+EU,France
+EU,Germany
+EU,Greece
+EU,Hungary
+EU,Ireland
+EU,Italy
+EU,Latvia
+EU,Lithuania
+EU,Luxembourg
+EU,Malta
+EU,Netherlands
+EU,Poland
+EU,Portugal
+EU,Romania
+EU,Slovakia
+EU,Slovenia
+EU,Spain
+EU,Sweden
+UN: Africa,Algeria
+UN: Africa,Angola
+UN: Africa,Benin
+UN: Africa,Botswana
+UN: Africa,Burkina Faso
+UN: Africa,Burundi
+UN: Africa,Cabo Verde
+UN: Africa,Cameroon
+UN: Africa,Central African Republic
+UN: Africa,Chad
+UN: Africa,Comoros
+UN: Africa,Congo (Brazzaville)
+UN: Africa,Cote d'Ivoire
+UN: Africa,Congo (Kinshasa)
+UN: Africa,Djibouti
+UN: Africa,Egypt
+UN: Africa,Equatorial Guinea
+UN: Africa,Eritrea
+UN: Africa,Ethiopia
+UN: Africa,Eswatini
+UN: Africa,Gabon
+UN: Africa,Gambia
+UN: Africa,Ghana
+UN: Africa,Guinea
+UN: Africa,Guinea-Bissau
+UN: Africa,Kenya
+UN: Africa,Lesotho
+UN: Africa,Liberia
+UN: Africa,Libya
+UN: Africa,Madagascar
+UN: Africa,Malawi
+UN: Africa,Mali
+UN: Africa,Mauritania
+UN: Africa,Mauritius
+UN: Africa,Morocco
+UN: Africa,Mozambique
+UN: Africa,Namibia
+UN: Africa,Niger
+UN: Africa,Nigeria
+UN: Africa,Rwanda
+UN: Africa,Sao Tome and Principe
+UN: Africa,Senegal
+UN: Africa,Seychelles
+UN: Africa,Sierra Leone
+UN: Africa,Somalia
+UN: Africa,South Africa
+UN: Africa,South Sudan
+UN: Africa,Sudan
+UN: Africa,Togo
+UN: Africa,Tunisia
+UN: Africa,Uganda
+UN: Africa,Tanzania
+UN: Africa,Zambia
+UN: Africa,Zimbabwe
+UN: Asia-Pacific,Afghanistan
+UN: Asia-Pacific,Bahrain
+UN: Asia-Pacific,Bangladesh
+UN: Asia-Pacific,Bhutan
+UN: Asia-Pacific,Brunei
+UN: Asia-Pacific,Cambodia
+UN: Asia-Pacific,China
+UN: Asia-Pacific,Cyprus
+UN: Asia-Pacific,"Korea, North"
+UN: Asia-Pacific,Fiji
+UN: Asia-Pacific,India
+UN: Asia-Pacific,Indonesia
+UN: Asia-Pacific,Iran
+UN: Asia-Pacific,Iraq
+UN: Asia-Pacific,Japan
+UN: Asia-Pacific,Jordan
+UN: Asia-Pacific,Kazakhstan
+UN: Asia-Pacific,Kuwait
+UN: Asia-Pacific,Kyrgyzstan
+UN: Asia-Pacific,Laos
+UN: Asia-Pacific,Lebanon
+UN: Asia-Pacific,Malaysia
+UN: Asia-Pacific,Maldives
+UN: Asia-Pacific,Marshall Islands
+UN: Asia-Pacific,Micronesia
+UN: Asia-Pacific,Mongolia
+UN: Asia-Pacific,Myanmar
+UN: Asia-Pacific,Nauru
+UN: Asia-Pacific,Nepal
+UN: Asia-Pacific,Oman
+UN: Asia-Pacific,Pakistan
+UN: Asia-Pacific,Palau
+UN: Asia-Pacific,Papua New Guinea
+UN: Asia-Pacific,Philippines
+UN: Asia-Pacific,Qatar
+UN: Asia-Pacific,"Korea, South"
+UN: Asia-Pacific,Samoa
+UN: Asia-Pacific,Saudi Arabia
+UN: Asia-Pacific,Singapore
+UN: Asia-Pacific,Solomon Islands
+UN: Asia-Pacific,Sri Lanka
+UN: Asia-Pacific,Palestine
+UN: Asia-Pacific,Syria
+UN: Asia-Pacific,Tajikistan
+UN: Asia-Pacific,Thailand
+UN: Asia-Pacific,Timor-Leste
+UN: Asia-Pacific,Tonga
+UN: Asia-Pacific,Turkey
+UN: Asia-Pacific,Turkmenistan
+UN: Asia-Pacific,Tuvalu
+UN: Asia-Pacific,United Arab Emirates
+UN: Asia-Pacific,Uzbekistan
+UN: Asia-Pacific,Vanuatu
+UN: Asia-Pacific,Vietnam
+UN: Asia-Pacific,Yemen
+UN: Eastern Europe,Albania
+UN: Eastern Europe,Armenia
+UN: Eastern Europe,Azerbaijan
+UN: Eastern Europe,Belarus
+UN: Eastern Europe,Bosnia and Herzegovina
+UN: Eastern Europe,Bulgaria
+UN: Eastern Europe,Croatia
+UN: Eastern Europe,Czechia
+UN: Eastern Europe,Estonia
+UN: Eastern Europe,Georgia
+UN: Eastern Europe,Hungary
+UN: Eastern Europe,Latvia
+UN: Eastern Europe,Lithuania
+UN: Eastern Europe,Montenegro
+UN: Eastern Europe,North Macedonia
+UN: Eastern Europe,Poland
+UN: Eastern Europe,Moldova
+UN: Eastern Europe,Romania
+UN: Eastern Europe,Russia
+UN: Eastern Europe,Serbia
+UN: Eastern Europe,Slovakia
+UN: Eastern Europe,Slovenia
+UN: Eastern Europe,Ukraine
+UN: Latin America and the Caribbean,Antigua and Barbuda
+UN: Latin America and the Caribbean,Argentina
+UN: Latin America and the Caribbean,Bahamas
+UN: Latin America and the Caribbean,Barbados
+UN: Latin America and the Caribbean,Belize
+UN: Latin America and the Caribbean,Bolivia
+UN: Latin America and the Caribbean,Brazil
+UN: Latin America and the Caribbean,Chile
+UN: Latin America and the Caribbean,Colombia
+UN: Latin America and the Caribbean,Costa Rica
+UN: Latin America and the Caribbean,Cuba
+UN: Latin America and the Caribbean,Dominica
+UN: Latin America and the Caribbean,Dominican Republic
+UN: Latin America and the Caribbean,Ecuador
+UN: Latin America and the Caribbean,El Salvador
+UN: Latin America and the Caribbean,Grenada
+UN: Latin America and the Caribbean,Guatemala
+UN: Latin America and the Caribbean,Guyana
+UN: Latin America and the Caribbean,Haiti
+UN: Latin America and the Caribbean,Honduras
+UN: Latin America and the Caribbean,Jamaica
+UN: Latin America and the Caribbean,Mexico
+UN: Latin America and the Caribbean,Nicaragua
+UN: Latin America and the Caribbean,Panama
+UN: Latin America and the Caribbean,Paraguay
+UN: Latin America and the Caribbean,Peru
+UN: Latin America and the Caribbean,Saint Kitts and Nevis
+UN: Latin America and the Caribbean,Saint Lucia
+UN: Latin America and the Caribbean,Saint Vincent and the Grenadines
+UN: Latin America and the Caribbean,Suriname
+UN: Latin America and the Caribbean,Trinidad and Tobago
+UN: Latin America and the Caribbean,Uruguay
+UN: Latin America and the Caribbean,Venezuela
+UN: Western Europe and Others (+ US),Andorra
+UN: Western Europe and Others (+ US),Australia
+UN: Western Europe and Others (+ US),Austria
+UN: Western Europe and Others (+ US),Belgium
+UN: Western Europe and Others (+ US),Canada
+UN: Western Europe and Others (+ US),Denmark
+UN: Western Europe and Others (+ US),Finland
+UN: Western Europe and Others (+ US),France
+UN: Western Europe and Others (+ US),Germany
+UN: Western Europe and Others (+ US),Greece
+UN: Western Europe and Others (+ US),Iceland
+UN: Western Europe and Others (+ US),Ireland
+UN: Western Europe and Others (+ US),Israel
+UN: Western Europe and Others (+ US),Italy
+UN: Western Europe and Others (+ US),Liechtenstein
+UN: Western Europe and Others (+ US),Luxembourg
+UN: Western Europe and Others (+ US),Malta
+UN: Western Europe and Others (+ US),Monaco
+UN: Western Europe and Others (+ US),Netherlands
+UN: Western Europe and Others (+ US),New Zealand
+UN: Western Europe and Others (+ US),Norway
+UN: Western Europe and Others (+ US),Portugal
+UN: Western Europe and Others (+ US),San Marino
+UN: Western Europe and Others (+ US),Spain
+UN: Western Europe and Others (+ US),Sweden
+UN: Western Europe and Others (+ US),Switzerland
+UN: Western Europe and Others (+ US),Turkey
+UN: Western Europe and Others (+ US),United Kingdom
+UN: Western Europe and Others (+ US),US
+OECD,Australia
+OECD,Austria
+OECD,Belgium
+OECD,Canada
+OECD,Chile
+OECD,Czechia
+OECD,Denmark
+OECD,Estonia
+OECD,Finland
+OECD,France
+OECD,Germany
+OECD,Greece
+OECD,Hungary
+OECD,Iceland
+OECD,Ireland
+OECD,Israel
+OECD,Italy
+OECD,Japan
+OECD,"Korea, South"
+OECD,Latvia
+OECD,Lithuania
+OECD,Luxembourg
+OECD,Mexico
+OECD,Netherlands
+OECD,New Zealand
+OECD,Norway
+OECD,Poland
+OECD,Portugal
+OECD,Slovakia
+OECD,Slovenia
+OECD,Spain
+OECD,Sweden
+OECD,Switzerland
+OECD,Turkey
+OECD,United Kingdom
+OECD,US
+North America,Antigua and Barbuda
+North America,The Bahamas
+North America,Barbados
+North America,Belize
+North America,Canada
+North America,Costa Rica
+North America,Cuba
+North America,Dominica
+North America,Dominican Republic
+North America,El Salvador
+North America,Grenada
+North America,Guatemala
+North America,Haiti
+North America,Honduras
+North America,Jamaica
+North America,Mexico
+North America,Nicaragua
+North America,Panama
+North America,Saint Kitts and Nevis
+North America,Saint Lucia
+North America,Saint Vincent and the Grenadines
+North America,Trinidad and Tobago
+North America,US
+South America,Argentina
+South America,Bolivia
+South America,Brazil
+South America,Chile
+South America,Colombia
+South America,Ecuador
+South America,Guyana
+South America,Paraguay
+South America,Peru
+South America,Suriname
+South America,Uruguay
+South America,Venezuela
+Europe,Albania
+Europe,Andorra
+Europe,Armenia
+Europe,Australia
+Europe,Azerbaijan
+Europe,Belarus
+Europe,Belgium
+Europe,Bosnia and Herzegovina
+Europe,Bulgaria
+Europe,Croatia
+Europe,Cyprus
+Europe,Czechia
+Europe,Denmark
+Europe,Estonia
+Europe,Finland
+Europe,France
+Europe,Georgia
+Europe,Germany
+Europe,Greece
+Europe,Hungary
+Europe,Iceland
+Europe,Ireland
+Europe,Italy
+Europe,Kazakhstan
+Europe,Latvia
+Europe,Liechtenstein
+Europe,Lithuania
+Europe,Luxembourg
+Europe,Malta
+Europe,Moldova
+Europe,Monaco
+Europe,Montenegro
+Europe,Netherlands
+Europe,North Macedonia
+Europe,Norway
+Europe,Poland
+Europe,Portugal
+Europe,Russia
+Europe,San Marino
+Europe,Serbia
+Europe,Slovakia
+Europe,Slovenia
+Europe,Spain
+Europe,Sweden
+Europe,Switzerland
+Europe,Turkey
+Europe,Ukraine
+Europe,United Kingdom
+Asia,Afghanistan
+Asia,Armenia
+Asia,Azerbaijan
+Asia,Bahamas
+Asia,Bangladesh
+Asia,Bhutan
+Asia,Brunei
+Asia,Cambodia
+Asia,China
+Asia,India
+Asia,Indonesia
+Asia,Iran
+Asia,Iraq
+Asia,Israel
+Asia,Japan
+Asia,Jordan
+Asia,"Korea, North"
+Asia,"Korea, South"
+Asia,Kuwait
+Asia,Kyrgyzstan
+Asia,Laos
+Asia,Lebanon
+Asia,Malaysia
+Asia,Maldives
+Asia,Mongolia
+Asia,Myanmar
+Asia,Nepal
+Asia,Oman
+Asia,Pakistan
+Asia,Philippines
+Asia,Qatar
+Asia,Russia
+Asia,Saudi Arabia
+Asia,Singapore
+Asia,Sri Lanka
+Asia,Syria
+Asia,Tajikistan
+Asia,Thailand
+Asia,Timor-Leste
+Asia,Turkey
+Asia,Turkmenistan
+Asia,United Arab Emirates
+Asia,Uzbekistan
+Asia,Vietnam
+Asia,Yemen
+Arab League,Algeria
+Arab League,Bahrain
+Arab League,Comoros
+Arab League,Djibouti
+Arab League,Egypt
+Arab League,Iraq
+Arab League,Jordan
+Arab League,Kuwait
+Arab League,Lebanon
+Arab League,Libya
+Arab League,Mauritania
+Arab League,Morocco
+Arab League,Oman
+Arab League,Palestine
+Arab League,Qatar
+Arab League,Saudi Arabia
+Arab League,Somalia
+Arab League,Sudan
+Arab League,Syria
+Arab League,Tunisia
+Arab League,United Arab Emirates
+Arab League,Yemen
