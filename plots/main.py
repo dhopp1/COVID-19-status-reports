@@ -16,6 +16,7 @@ data["smooth_new_cases"] = data.new_cases
 data["smooth_new_deaths"] = data.new_deaths
 data["smooth_accel_cases"] = data.acceleration_cases
 data["smooth_accel_deaths"] = data.acceleration_deaths
+data = data.sort_values(["country", "date"]).reset_index(drop=True)
 
 forecasts = pd.read_csv("plots/data/forecasts.csv", parse_dates=["date"])
 forecasts["date_string"] = forecasts.date.dt.strftime("%Y-%0m-%0d")
@@ -161,28 +162,12 @@ def x_axis_update_plot(attr, old, new):
         (data.country == select2.value)
     , :].reset_index(drop=True)
 
-# for some reason world smoothing gives weird curves with rolling.mean
-def world_fix(metric, smooth_name, window):
-    def movingaverage (values, window):
-        weights = np.repeat(1.0, window)/window
-        sma = np.convolve(values, weights, 'valid')
-        return sma
-    proper = pd.Series(movingaverage(data.loc[data.country == "World", metric], window))
-    proper = pd.Series([np.nan] * (window-1)).append(proper)
-    proper.index = data.loc[data.country == "World", smooth_name].index
-    data.loc[data.country == "World", smooth_name] = proper
-
 def smoothing_update(attr, old, new):
     if new != "0":
-        data.smooth_new_cases = data.groupby('country')['new_cases'].rolling(int(new)).mean().reset_index(drop=True)
-        data.smooth_new_deaths = data.groupby('country')['new_deaths'].rolling(int(new)).mean().reset_index(drop=True)
-        data.smooth_accel_cases = data.groupby('country')['acceleration_cases'].rolling(int(new)).mean().reset_index(drop=True)
-        data.smooth_accel_deaths = data.groupby('country')['acceleration_deaths'].rolling(int(new)).mean().reset_index(drop=True)
-        if select1.value == "World":
-            world_fix("new_cases", "smooth_new_cases", int(new))
-            world_fix("new_deaths", "smooth_new_deaths", int(new))
-            world_fix("acceleration_cases", "smooth_accel_cases", int(new))
-            world_fix("acceleration_deaths", "smooth_accel_deaths", int(new))
+        data.smooth_new_cases = data.groupby('country')['new_cases'].rolling(int(new)).mean().reset_index().sort_values(['country', 'level_1'])['new_cases'].reset_index(drop=True)
+        data.smooth_new_deaths = data.groupby('country')['new_deaths'].rolling(int(new)).mean().reset_index().sort_values(['country', 'level_1'])['new_deaths'].reset_index(drop=True)
+        data.smooth_accel_cases = data.groupby('country')['acceleration_cases'].rolling(int(new)).mean().reset_index().sort_values(['country', 'level_1'])['acceleration_cases'].reset_index(drop=True)
+        data.smooth_accel_deaths = data.groupby('country')['acceleration_deaths'].rolling(int(new)).mean().reset_index().sort_values(['country', 'level_1'])['acceleration_deaths'].reset_index(drop=True)
     else:
         data["smooth_new_cases"] = data.new_cases
         data["smooth_new_deaths"] = data.new_deaths
