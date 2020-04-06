@@ -217,6 +217,40 @@ for group in unique(groups.group)
     global all_country_data = [all_country_data; add_group(countries, all_country_data, group)]
 end
 
+# adding log doubling times
+function double_time(start_number, days, n)
+    output = []
+    for i in 1:n
+        push!(output, start_number)
+        start_number = exp(log(2) / days) * start_number
+    end
+    return output
+end
+
+new_cols = Dict(:double_1_cases=>1, :double_3_cases=>3, :double_5_cases=>5, :double_10_cases=>10, :double_20_cases=>20, :double_1_deaths=>1, :double_3_deaths=>3, :double_5_deaths=>5, :double_10_deaths=>10, :double_20_deaths=>20)
+
+for new_col in keys(new_cols)
+    global all_country_data[!, new_col] .= 0.0
+end
+
+for country in unique(all_country_data.country)
+    for (new_col, days) in new_cols
+        if occursin("cases", string(new_col))
+            if sum((all_country_data.country .== country) .& (all_country_data.days_since_100 .> 0)) > 0
+                mask = (all_country_data.country .== country) .& (all_country_data.days_since_100 .> 0)
+                base_col = :confirmed
+                all_country_data[mask, new_col] = double_time(all_country_data[mask, base_col][1], days, length(all_country_data[mask, new_col]))
+            end
+        else
+            if sum((all_country_data.country .== country) .& (all_country_data.days_since_10 .> 0)) > 0
+                mask = (all_country_data.country .== country) .& (all_country_data.days_since_10 .> 0)
+                base_col = :deaths
+                all_country_data[mask, new_col] = double_time(all_country_data[mask, base_col][1], days, length(all_country_data[mask, new_col]))
+            end
+        end
+    end
+end
+
 # write out all country file
 CSV.write("plots/data/transformed_data.csv", all_country_data)
 

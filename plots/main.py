@@ -44,9 +44,9 @@ fc_source_deaths2 = ColumnDataSource(forecasts.loc[(forecasts.country == "None")
 
 
 # defining plots
-def line_plot(source, p, color, country, metric, dodge_value=None):
+def line_plot(source, p, color, country, metric, dodge_value=None, name=None):
     """data = ColumnDataSource, country = country name, p = bokeh figure"""
-    p.line('x_col', metric, source=source, color=color)
+    p.line('x_col', metric, source=source, color=color, name=name)
     return p
 
 def change_width(source_data, source_2_data, date):
@@ -58,7 +58,7 @@ def change_width(source_data, source_2_data, date):
         width = 10.0/n_points
     return width
 
-def bar_plot(source, p, color, country, metric, dodge_value):
+def bar_plot(source, p, color, country, metric, dodge_value, name=None):
     p.vbar(x=dodge('x_col', value=dodge_value), width=change_width(source.data, source2.data, True), top=metric, source=source, color=color, name='bar')
     return p
 
@@ -73,13 +73,10 @@ def forecast_plot(fc_source, data_source, p, actual_color, fc_color, metric, col
     p.varea(x="date", y1="lo_95", y2="hi_95", fill_alpha=0.5, fill_color=color_95, source=fc_source)
     return p
 
-def add_plot(plot_function, metric, title, y_axis_type):
+def add_plot(plot_function, metric, title, y_axis_type, name=None):
     p = figure(tools=["save"], title=title, y_axis_type=y_axis_type)
-    plot_function(source, p, "#21618C", select1.value, metric, 0.25)
-    plot_function(source2, p, "#ff4d4d", select1.value, metric, -0.25)
-    p.add_tools(
-        HoverTool(tooltips=[('Country', '@country'), ("Date", "@date_string"), (title,'@' + metric + '{,}')], mode='vline')
-    )
+    plot_function(source, p, "#21618C", select1.value, metric, 0.25, name)
+    plot_function(source2, p, "#ff4d4d", select1.value, metric, -0.25, name)
     p.xaxis.major_label_orientation = 3.14/4
     p.renderers.extend([Span(location=0, dimension='width', line_color='black', line_width=1)]) # adding a horizontal black line at 0
     p.yaxis.formatter=NumeralTickFormatter(format=",")
@@ -242,9 +239,38 @@ axis_types = ['linear', 'log', 'bar']
 for metric, title in metrics.items():
     for axis_type in axis_types:
         if axis_type != 'bar':
-            plots[metric + axis_type] = add_plot(line_plot, metric, title, axis_type)
+            # log dotted lines
+            if (metric in ['confirmed', 'deaths']) & (axis_type == 'log'):
+                p = add_plot(line_plot, metric, title, axis_type, "first")
+                if metric == 'confirmed':
+                    p.line('x_col', 'double_3_cases', source=source, color='grey', line_dash='dashed', name="double_3_cases")
+                    p.line('x_col', 'double_5_cases', source=source, color='grey', line_dash='dashed', name="double_5_cases")
+                    p.line('x_col', 'double_10_cases', source=source, color='grey', line_dash='dashed', name="double_10_cases")
+                    p.add_tools(
+                        HoverTool(tooltips=[('Country', '@country'), ("Date", "@date_string"), (title,'@' + metric + '{,}')], names=["first"]),
+                        HoverTool(tooltips=[('Country', '@country'), ("Days since 100th Case", '@days_since_100'), ("Double every 3 days", "@double_3_cases{,}")], names=["double_3_cases"]),
+                        HoverTool(tooltips=[('Country', '@country'), ("Days since 100th Case", '@days_since_100'), ("Double every 5 days", "@double_5_cases{,}")], names=["double_5_cases"]),
+                        HoverTool(tooltips=[('Country', '@country'), ("Days since 100th Case", '@days_since_100'), ("Double every 10 days", "@double_10_cases{,}")], names=["double_10_cases"])
+                    )
+                else:
+                    p.line('x_col', 'double_3_deaths', source=source, color='grey', line_dash='dashed', name="double_3_deaths")
+                    p.line('x_col', 'double_5_deaths', source=source, color='grey', line_dash='dashed', name="double_5_deaths")
+                    p.line('x_col', 'double_10_deaths', source=source, color='grey', line_dash='dashed', name="double_10_deaths")
+                    p.add_tools(
+                        HoverTool(tooltips=[('Country', '@country'), ("Days since 10th Death", '@days_since_10'), ("Date", "@date_string"), (title,'@' + metric + '{,}')], names=["first"]),
+                        HoverTool(tooltips=[('Country', '@country'), ("Days since 10th Death", '@days_since_10'), ("Double every 3 days", "@double_3_deaths{,}")], names=["double_3_deaths"]),
+                        HoverTool(tooltips=[('Country', '@country'), ("Days since 10th Death", '@days_since_10'), ("Double every 5 days", "@double_5_deaths{,}")], names=["double_5_deaths"]),
+                        HoverTool(tooltips=[('Country', '@country'), ("Days since 10th Death", '@days_since_10'), ("Double every 10 days", "@double_10_deaths{,}")], names=["double_10_deaths"])
+                    )
+                plots[metric + axis_type] = p
+            else:
+                p = add_plot(line_plot, metric, title, axis_type, "first")
+                p.add_tools(HoverTool(tooltips=[('Country', '@country'), ("Date", "@date_string"), (title,'@' + metric + '{,}')], names=["first"]))
+                plots[metric + axis_type] = p
         else:
-            plots[metric + axis_type] = add_plot(bar_plot, metric, title, 'linear')
+            p = add_plot(bar_plot, metric, title, 'linear', "bar")
+            p.add_tools(HoverTool(tooltips=[('Country', '@country'), ("Date", "@date_string"), (title,'@' + metric + '{,}')], names=["bar"]))
+            plots[metric + axis_type] = p
 
 # forecast plots
 metrics = {'confirmed':'Cases Forecast', 'deaths':'Deaths Forecast'}
