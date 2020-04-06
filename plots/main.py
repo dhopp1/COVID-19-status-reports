@@ -1,9 +1,9 @@
-from bokeh.plotting import figure
-from bokeh.plotting import ColumnDataSource, curdoc
+from bokeh.plotting import ColumnDataSource, curdoc, figure
 from bokeh.io import output_file, show
 from bokeh.layouts import column, row, gridplot
 from bokeh.models import Band, DateRangeSlider, DatetimeTickFormatter, HoverTool, NumeralTickFormatter, Select, Span
 from bokeh.models.widgets import Tabs, Panel
+from bokeh.transform import dodge
 import numpy as np
 import pandas as pd
 import datetime
@@ -39,9 +39,22 @@ fc_source_deaths2 = ColumnDataSource(forecasts.loc[(forecasts.country == "None")
 
 
 # defining plots
-def line_plot(source, p, color, country, metric):
+def line_plot(source, p, color, country, metric, dodge_value=None):
     """data = ColumnDataSource, country = country name, p = bokeh figure"""
     p.line('x_col', metric, source=source, color=color)
+    return p
+
+def change_width(source_data, source_2_data, date):
+    if date:
+        n_points = max([len(source_data), len(source_2_data)])
+        width = 24*60*60*10000/n_points
+    else:
+        n_points = max([len(source_data), len(source_2_data)])
+        width = 10.0/n_points
+    return width
+
+def bar_plot(source, p, color, country, metric, dodge_value):
+    p.vbar(x=dodge('x_col', value=dodge_value), width=change_width(source.data, source2.data, True), top=metric, source=source, color=color, name='bar')
     return p
 
 def forecast_plot(fc_source, data_source, p, actual_color, fc_color, metric, color_80, color_95):
@@ -56,11 +69,11 @@ def forecast_plot(fc_source, data_source, p, actual_color, fc_color, metric, col
     return p
 
 def add_plot(plot_function, metric, title, y_axis_type):
-    p = figure(tools=["reset","save"], title=title, y_axis_type=y_axis_type)
-    plot_function(source, p, "#21618C", select1.value, metric)
-    plot_function(source2, p, "#ff4d4d", select1.value, metric)
+    p = figure(tools=["save"], title=title, y_axis_type=y_axis_type)
+    plot_function(source, p, "#21618C", select1.value, metric, 0.25)
+    plot_function(source2, p, "#ff4d4d", select1.value, metric, -0.25)
     p.add_tools(
-        HoverTool(tooltips=[('Country', '@country'), ("Date", "@date_string"), (title,'@' + metric + '{,}')])
+        HoverTool(tooltips=[('Country', '@country'), ("Date", "@date_string"), (title,'@' + metric + '{,}')], mode='vline')
     )
     p.xaxis.major_label_orientation = 3.14/4
     p.renderers.extend([Span(location=0, dimension='width', line_color='black', line_width=1)]) # adding a horizontal black line at 0
@@ -134,6 +147,12 @@ def date_range_update_plot(attr, old, new):
         (data.date <= datetime.datetime.fromtimestamp(new[1]/1000)) &
         (data.country == select2.value)
     , :].reset_index(drop=True)
+    for p in ["confirmedbar", "deathsbar", "smooth_new_casesbar", "smooth_new_deathsbar", "smooth_accel_casesbar", "smooth_accel_deathsbar"]:
+        for glyph in plots[p].select({'name': 'bar'}):
+            if x_col.value == "Date":
+                glyph.glyph.width = change_width(source.data, source2.data, True)
+            else:
+                glyph.glyph.width = change_width(source.data, source2.data, False)
 
 def x_axis_update_plot(attr, old, new):
     ["Date", "Days since 100th case", "Days since 10th death"]
@@ -160,7 +179,13 @@ def x_axis_update_plot(attr, old, new):
         (data.date >= datetime.datetime.fromtimestamp(date_range.value[0]/1000)) & 
         (data.date <= datetime.datetime.fromtimestamp(date_range.value[1]/1000)) &
         (data.country == select2.value)
-    , :].reset_index(drop=True)
+    , :].reset_index(drop=True)    
+    for p in ["confirmedbar", "deathsbar", "smooth_new_casesbar", "smooth_new_deathsbar", "smooth_accel_casesbar", "smooth_accel_deathsbar"]:
+        for glyph in plots[p].select({'name': 'bar'}):
+            if new == "Date":
+                glyph.glyph.width = change_width(source.data, source2.data, True)
+            else:
+                glyph.glyph.width = change_width(source.data, source2.data, False)
 
 def smoothing_update(attr, old, new):
     if new != "0":
@@ -208,22 +233,25 @@ smoothing.on_change("value", smoothing_update)
 # plots
 plots = {}
 metrics = {'confirmed':'Confirmed Cases', 'deaths':'Deaths', 'smooth_new_cases':'New Cases', 'smooth_new_deaths':'New Deaths', 'smooth_accel_cases':'Cases Acceleration', 'smooth_accel_deaths':'Deaths Acceleration'}
-axis_types = ['linear', 'log']
+axis_types = ['linear', 'log', 'bar']
 for metric, title in metrics.items():
     for axis_type in axis_types:
-        plots[metric + axis_type] = add_plot(line_plot, metric, title, axis_type)
+        if axis_type != 'bar':
+            plots[metric + axis_type] = add_plot(line_plot, metric, title, axis_type)
+        else:
+            plots[metric + axis_type] = add_plot(bar_plot, metric, title, 'linear')
 
 # forecast plots
 metrics = {'confirmed':'Cases Forecast', 'deaths':'Deaths Forecast'}
 for metric, title in metrics.items():
-    for axis_type in axis_types:
+    for axis_type in axis_types[:-1]:
         if metric == 'confirmed':
             sc = fc_source_cases
             sc2 = fc_source_cases2
         else:
             sc = fc_source_deaths
             sc2 = fc_source_deaths2
-        p = figure(tools=["reset", "save"], title=title, y_axis_type=axis_type)
+        p = figure(tools=["save"], title=title, y_axis_type=axis_type)
         p = add_forecast_plot(sc, source, p, metric, actual_color="#21618C", fc_color="#0000ff", color_80="#6666ff", color_95="#ccccff")
         p = add_forecast_plot(sc2, source2, p, metric, actual_color="#ff4d4d", fc_color="#990000", color_80="#ff9999", color_95="#ffcccc")
         plots['forecast_' + metric + axis_type] = p
@@ -241,9 +269,16 @@ log_tab_layout = column(
     row(plots['smooth_accel_caseslog'], plots['smooth_accel_deathslog']),
     row(plots['forecast_confirmedlog'], plots['forecast_deathslog'])
 )
+bar_tab_layout = column(
+    row(plots['confirmedbar'], plots['deathsbar']),
+    row(plots['smooth_new_casesbar'], plots['smooth_new_deathsbar']),
+    row(plots['smooth_accel_casesbar'], plots['smooth_accel_deathsbar']),
+    row(plots['forecast_confirmedlinear'], plots['forecast_deathslinear'])
+)
 linear_tab = Panel(child=linear_tab_layout, title='Linear Scale')
 log_tab = Panel(child=log_tab_layout, title='Log Scale')
-tabs = Tabs(tabs=[linear_tab, log_tab])
+bar_tab = Panel(child=bar_tab_layout, title='Bar Graphs')
+tabs = Tabs(tabs=[linear_tab, log_tab, bar_tab])
 
 # initialize plots with date format
 all_plots = list(plots.values())
