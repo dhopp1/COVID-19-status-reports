@@ -39,7 +39,7 @@ forecasts = pd.read_csv("plots/data/forecasts.csv", parse_dates=["date"])
 forecasts["date_string"] = forecasts.date.dt.strftime("%Y-%0m-%0d")
 forecasts["x_col"] = forecasts.date
 
-acceleration_data = pd.read_csv("plots/data/acceleration_data")
+acceleration_data = pd.read_csv("plots/data/acceleration_data.csv")
 
 groups = pd.read_csv("plots/data/country_groups.csv")
 groups = list(groups.group.unique())
@@ -136,8 +136,9 @@ columns = [
 data_table = DataTable(
     source=source_table, columns=columns, width=500, height=200, row_height=20
 )
+
+#acceleration overview table source
 source_acceleration_table = ColumnDataSource(acceleration_dict)
-#Country,Acceleration of Last 5 Days,Cases Now,Cases 5 Days Ago,% Increase in 5 Days
 columns = [
     TableColumn(
         field="Country",
@@ -169,6 +170,7 @@ acceleration_table = DataTable(
     source=source_acceleration_table, columns=columns, width=750, height=600
 )
 
+# other data sources
 source = ColumnDataSource(data.loc[data.country == "World", :])
 source2 = ColumnDataSource(data.loc[data.country == "None", :])
 fc_source_cases = ColumnDataSource(

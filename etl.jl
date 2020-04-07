@@ -260,6 +260,7 @@ countries = unique(all_country_data.country)
 acceleration = []
 cases_5_ago = []
 cases_now = []
+deaths = []
 for country in countries
     metric = mean(all_country_data[all_country_data.country .== country, :acceleration_cases][end-4:end])
     metric /= all_country_data[all_country_data.country .== country, :confirmed][end-4]
@@ -269,17 +270,21 @@ for country in countries
     push!(acceleration, metric)
     push!(cases_5_ago, all_country_data[all_country_data.country .== country, :confirmed][end-4])
     push!(cases_now, all_country_data[all_country_data.country .== country, :confirmed][end])
+    push!(deaths, all_country_data[all_country_data.country .== country, :deaths][end])
 end
-last_5 = rename!(DataFrame([countries, acceleration, cases_now, cases_5_ago]), [:country, :last_5_accel, :cases_now, :cases_5_ago])
+last_5 = rename!(DataFrame([countries, cases_now, cases_5_ago, deaths, acceleration]), [:country, :cases_now, :cases_5_ago, :deaths, :last_5_accel])
 last_5[!, :perc_increase] = last_5.cases_now ./ last_5.cases_5_ago .- 1
-tmp = sort(last_5[(last_5.cases_5_ago .> 20) .& (last_5.cases_now .> 1000), :], order(:last_5_accel, rev=true))
+last_5[!, :death_rate] = last_5.deaths ./ last_5.cases_now
+tmp = sort(last_5, order(:cases_now, rev=true))
 tmp[!, :perc_increase] = string.(round.(tmp.perc_increase .* 100, digits=2)) .* "%"
-rename!(tmp, [:Country, Symbol("Acceleration of Last 5 Days"), Symbol("Cases Now"), Symbol("Cases 5 Days Ago"), Symbol("% Increase in 5 Days")])
+tmp[!, :death_rate] = string.(round.(tmp.death_rate .* 100, digits=2)) .* "%"
+rename!(tmp, [Symbol("Country/Region"), Symbol("Confirmed Cases"), Symbol("Cases 5 Days Ago"), :Deaths, Symbol("Acceleration of Last 5 Days"), Symbol("% Increase in 5 Days"), Symbol("Death Rate")])
 tmp[!, Symbol("Acceleration of Last 5 Days")] = string.(round.(tmp[!, Symbol("Acceleration of Last 5 Days")] * 100, digits=2)) .* "%"
-for col in [Symbol("Cases Now"), Symbol("Cases 5 Days Ago")]
+select!(tmp, [Symbol("Country/Region"), Symbol("Confirmed Cases"), Symbol("Cases 5 Days Ago"), Symbol("% Increase in 5 Days"), Symbol("Acceleration of Last 5 Days"), :Deaths, Symbol("Death Rate")])
+for col in [Symbol("Confirmed Cases"), Symbol("Cases 5 Days Ago"), :Deaths]
     tmp[!, col] = format.(tmp[!, col], commas=true)
 end
-CSV.write("plots/data/acceleration_data", tmp)
+CSV.write("plots/data/acceleration_data.csv", tmp)
 
 # adding forecast
 function r_forecast(x, y; country, metric, r_forecast_function, time_function, h)
