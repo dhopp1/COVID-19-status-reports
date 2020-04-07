@@ -1,5 +1,5 @@
 git -C COVID-19 pull &&
-git -C covid-19-data &&
+git -C covid-19-data pull &&
 julia etl.jl &&
 git add . &&
 git commit -m "Daily update" &&
