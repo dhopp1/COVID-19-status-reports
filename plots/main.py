@@ -141,18 +141,13 @@ data_table = DataTable(
 source_acceleration_table = ColumnDataSource(acceleration_dict)
 columns = [
     TableColumn(
-        field="Country",
-        title="Country",
+        field="Country/Region",
+        title="Country/Region",
         formatter=HTMLTemplateFormatter(template=templatebold),
     ),
     TableColumn(
-        field="Acceleration of Last 5 Days",
-        title="Acceleration of Last 5 Days",
-        formatter=HTMLTemplateFormatter(template=templatenormal),
-    ),
-    TableColumn(
-        field="Cases Now",
-        title="Cases Now",
+        field="Confirmed Cases",
+        title="Confirmed Cases",
         formatter=HTMLTemplateFormatter(template=templatenormal),
     ),
     TableColumn(
@@ -165,9 +160,24 @@ columns = [
         title="% Increase in 5 Days",
         formatter=HTMLTemplateFormatter(template=templatenormal),
     ),
+    TableColumn(
+        field="Acceleration of Last 5 Days",
+        title="Acceleration of Last 5 Days",
+        formatter=HTMLTemplateFormatter(template=templatenormal),
+    ),
+    TableColumn(
+        field="Deaths",
+        title="Deaths",
+        formatter=HTMLTemplateFormatter(template=templatenormal),
+    ),
+    TableColumn(
+        field="Death Rate",
+        title="Death Rate (%)",
+        formatter=HTMLTemplateFormatter(template=templatenormal),
+    ),
 ]
 acceleration_table = DataTable(
-    source=source_acceleration_table, columns=columns, width=750, height=600
+    source=source_acceleration_table, columns=columns, width=1000, height=600
 )
 
 # other data sources
@@ -797,11 +807,11 @@ log_tab = Panel(child=log_tab_layout, title="Log Scale")
 bar_tab = Panel(child=bar_tab_layout, title="Bar Graphs")
 forecast_tab = Panel(child=forecast_tab_layout, title="Forecasts")
 accel_div_text = """
-<h4>Case Acceleration</h4>
-The "Acceleration of Last 5 Days" column is calculated by the average second derivative over the last 5 days / number of cases 5 days ago. It doesn't have much intrinsic meaning but is rather a more comparable/relative measure between countries of how fast new cases are accelerating. <strong>The table is scrollable</strong>.
+<h4>Worldwide Overview</h4>
+The "Acceleration of Last 5 Days" column is calculated by the average second derivative over the last 5 days / number of cases 5 days ago. It doesn't have much intrinsic meaning but is rather a more comparable/relative measure between countries of how fast new cases are accelerating. <strong>The table is scrollable and sortable</strong>.
 """
-accel_div = Div(text=accel_div_text, width=900)
-acceleration_tab = Panel(child=column(accel_div,acceleration_table), title="Acceleration Summary")
+accel_div = Div(text=accel_div_text, width=1000)
+acceleration_tab = Panel(child=column(accel_div,acceleration_table), title="All Country Overview")
 tabs = Tabs(tabs=[linear_tab, log_tab, bar_tab, forecast_tab, acceleration_tab])
 
 # initialize plots with date format
