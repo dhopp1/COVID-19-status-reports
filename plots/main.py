@@ -17,6 +17,8 @@ data["smooth_new_deaths"] = data.new_deaths
 data["smooth_accel_cases"] = data.acceleration_cases
 data["smooth_accel_deaths"] = data.acceleration_deaths
 data = data.sort_values(["country", "date"]).reset_index(drop=True)
+data.days_since_100 = data.days_since_100.replace(0, np.nan)
+data.days_since_10 = data.days_since_10.replace(0, np.nan)
 
 forecasts = pd.read_csv("plots/data/forecasts.csv", parse_dates=["date"])
 forecasts["date_string"] = forecasts.date.dt.strftime("%Y-%0m-%0d")
