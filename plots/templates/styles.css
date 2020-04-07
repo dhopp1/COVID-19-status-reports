@@ -10,6 +10,14 @@
 	border-color: #ff4d4d;
 }
 
+.bk-root {
+	font-size: 15px;
+}
+
+.bk-root .bk-data-table{
+	font-size: 14.5px;
+}
+
 label {
 	font-weight: bold;
 }
@@ -17,7 +25,8 @@ label {
 body {
   	font-family: Helvetica, Arial, Sans-Serif;
   	/*width: 1200px;*/
-  	width: 80%;
+  	width: 600px;
 	margin-left: auto;
 	margin-right: auto;
+	line-height: 1.3;
 }

@@ -113,6 +113,7 @@ def gen_table(country1, country2):
     table_dict = dict(overview_df)
     return table_dict
 
+
 acceleration_dict = dict(acceleration_data)
 
 
@@ -134,50 +135,63 @@ columns = [
     ),
 ]
 data_table = DataTable(
-    source=source_table, columns=columns, width=500, height=200, row_height=20
+    source=source_table, columns=columns, width=500, height=200, row_height=25
 )
 
-#acceleration overview table source
+# acceleration overview table source
 source_acceleration_table = ColumnDataSource(acceleration_dict)
 columns = [
     TableColumn(
         field="Country/Region",
         title="Country/Region",
         formatter=HTMLTemplateFormatter(template=templatebold),
+        width=175,
     ),
     TableColumn(
         field="Confirmed Cases",
         title="Confirmed Cases",
         formatter=HTMLTemplateFormatter(template=templatenormal),
+        width=125,
     ),
     TableColumn(
         field="Cases 5 Days Ago",
         title="Cases 5 Days Ago",
         formatter=HTMLTemplateFormatter(template=templatenormal),
+        width=130,
     ),
     TableColumn(
         field="% Increase in 5 Days",
         title="% Increase in 5 Days",
         formatter=HTMLTemplateFormatter(template=templatenormal),
+        width=145,
     ),
     TableColumn(
         field="Acceleration of Last 5 Days",
         title="Acceleration of Last 5 Days",
         formatter=HTMLTemplateFormatter(template=templatenormal),
+        width=180,
     ),
     TableColumn(
         field="Deaths",
         title="Deaths",
         formatter=HTMLTemplateFormatter(template=templatenormal),
+        width=85,
     ),
     TableColumn(
         field="Death Rate",
         title="Death Rate (%)",
         formatter=HTMLTemplateFormatter(template=templatenormal),
+        width=110,
     ),
 ]
 acceleration_table = DataTable(
-    source=source_acceleration_table, columns=columns, width=1000, height=600
+    source=source_acceleration_table,
+    columns=columns,
+    width=600,
+    height=600,
+    fit_columns=False,
+    index_width=0,
+    row_height=25,
 )
 
 # other data sources
@@ -535,7 +549,10 @@ def smoothing_update(attr, old, new):
 
 # dropdowns
 select1 = Select(
-    title="Country/Region 1", options=countries, value="World", css_classes=["country_1"]
+    title="Country/Region 1",
+    options=countries,
+    value="World",
+    css_classes=["country_1"],
 )
 select1.on_change("value", country_1_update_plot)
 
@@ -777,36 +794,47 @@ line_div_text = """
 Confirmed cases and deaths are cumulative numbers, so the full number of reported cases and deaths up to a certain day. New cases/deaths are the number of cases/deaths reported on that day alone. Acceleration of cases/deaths is the rate of change of new cases/deaths. A higher acceleration means not only are cases growing, but they're growing at an <em>increasing</em> rate. A negative acceleration is good and means that cases are still growing, but not as quickly.
 """
 linear_tab_layout = column(
-    row(Div(text=line_div_text, width=900)),
-    row(plots["confirmedlinear"], plots["deathslinear"]),
-    row(plots["smooth_new_caseslinear"], plots["smooth_new_deathslinear"]),
-    row(plots["smooth_accel_caseslinear"], plots["smooth_accel_deathslinear"]),
+    row(Div(text=line_div_text, width=600)),
+    row(plots["confirmedlinear"]),
+    row(plots["smooth_new_caseslinear"]),
+    row(plots["smooth_accel_caseslinear"]),
+    row(plots["deathslinear"]),
+    row(plots["smooth_new_deathslinear"]),
+    row(plots["smooth_accel_deathslinear"]),
 )
 log_div_text = """
 <h4>Doubling times </h4>
-The dotted lines on the graphs show the number of cases there would be if they doubled every 3, 5, or 10 days for country 1. They start from the day of the 100th confirmed case and 10th death for cases and deaths respectively. As a result they are interpreted most easily when the X axis is set to those respective metrics. Slopes rather than absolute levels should be used for comparison.
+The dotted lines on the confirmed cases and deaths graphs show the number of cases there would be if they doubled every 3, 5, or 10 days for country 1. They start from the day of the 100th confirmed case and 10th death for cases and deaths respectively. As a result they are interpreted most easily when the X axis is set to those respective metrics. Slopes rather than absolute levels should be used for comparison.
 """
 log_tab_layout = column(
-    row(Div(text=log_div_text, width=900)),
-    row(plots["confirmedlog"], plots["deathslog"]),
-    row(plots["smooth_new_caseslog"], plots["smooth_new_deathslog"]),
-    row(plots["smooth_accel_caseslog"], plots["smooth_accel_deathslog"]),
+    row(Div(text=log_div_text, width=600)),
+    row(plots["confirmedlog"]),
+    row(plots["smooth_new_caseslog"]),
+    row(plots["smooth_accel_caseslog"]),
+    row(plots["deathslog"]),
+    row(plots["smooth_new_deathslog"]),
+    row(plots["smooth_accel_deathslog"]),
 )
 bar_tab_layout = column(
-    row(Div(text=line_div_text, width=900)),
-    row(plots["confirmedbar"], plots["deathsbar"]),
-    row(plots["smooth_new_casesbar"], plots["smooth_new_deathsbar"]),
-    row(plots["smooth_accel_casesbar"], plots["smooth_accel_deathsbar"]),
+    row(Div(text=line_div_text, width=600)),
+    row(plots["confirmedbar"]),
+    row(plots["smooth_new_casesbar"]),
+    row(plots["smooth_accel_casesbar"]),
+    row(plots["deathsbar"]),
+    row(plots["smooth_new_deathsbar"]),
+    row(plots["smooth_accel_deathsbar"]),
 )
 forecast_text = """
 <h4>Forecasts</h4>
 Forecast numbers and plots are created using <a href="https://otexts.com/fpp2/holt.html">Holt's linear trend method with dampening</a>. This is a linear model, which means it probably significantly underestimates countries that are experiencing the acceleration phase of their epidemics. It will probably be better at forecasting countries at a more mature phase, such as Italy or Spain. Important to note is that this is just one of many methods that can forecast the data, and I have not spent a significant amount of time validating it. I may spend more time in the future investigating and adding better forecasting methods. Plots display the point forecast and 80% prediction interval (darker shading), and 95% prediction interval (lighter shading).
 """
-forecast_div = Div(text=forecast_text, width=900)
+forecast_div = Div(text=forecast_text, width=600)
 forecast_tab_layout = column(
     row(forecast_div),
-    row(plots["forecast_confirmedlinear"], plots["forecast_deathslinear"]),
-    row(plots["forecast_confirmedlog"], plots["forecast_deathslog"])
+    row(plots["forecast_confirmedlinear"]),
+    row(plots["forecast_confirmedlog"]),
+    row(plots["forecast_deathslinear"]),
+    row(plots["forecast_deathslog"]),
 )
 linear_tab = Panel(child=linear_tab_layout, title="Linear Scale")
 log_tab = Panel(child=log_tab_layout, title="Log Scale")
@@ -814,12 +842,13 @@ bar_tab = Panel(child=bar_tab_layout, title="Bar Graphs")
 forecast_tab = Panel(child=forecast_tab_layout, title="Forecasts")
 accel_div_text = """
 <h4>Worldwide Overview</h4>
-The "Acceleration of Last 5 Days" column is calculated by the average second derivative over the last 5 days / number of cases 5 days ago. It doesn't have much intrinsic meaning but is rather a more comparable/relative measure between countries of how fast new cases are accelerating. <strong>The table is scrollable and sortable</strong>.
+The "Acceleration of Last 5 Days" column is calculated by the average second derivative over the last 5 days / number of cases 5 days ago. It doesn't have much intrinsic meaning but is rather a more comparable/relative measure between countries of how fast new cases are accelerating. <strong>The table is scrollable and sortable. Highlight a row by clicking or tapping for reference when scrolling horizontally</strong>.
 """
-accel_div = Div(text=accel_div_text, width=1000)
-acceleration_tab = Panel(child=column(accel_div,acceleration_table), title="All Country Overview")
+accel_div = Div(text=accel_div_text, width=600)
+acceleration_tab = Panel(
+    child=column(accel_div, acceleration_table), title="All Country Overview"
+)
 tabs = Tabs(tabs=[bar_tab, linear_tab, log_tab, forecast_tab, acceleration_tab])
-
 # initialize plots with date format
 all_plots = list(plots.values())
 for p in all_plots:
@@ -830,7 +859,11 @@ for p in all_plots:
 
 # final layout
 layout = column(
-    row(select1, select2), row(x_col, smoothing), row(date_range), row(data_table), row(tabs)
+    row(select1, select2),
+    row(x_col, smoothing),
+    row(date_range),
+    row(data_table),
+    row(tabs),
 )
 curdoc().add_root(layout)
 curdoc().title = "COVID-19 Status Report"
