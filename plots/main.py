@@ -295,7 +295,7 @@ def add_forecast_plot(
     p.add_tools(
         HoverTool(
             tooltips=[
-                ("Country", "@country"),
+                ("Country/Region", "@country"),
                 ("Date", "@date_string"),
                 (f"{metric_word} Actual", "@" + metric + "{,}"),
             ],
@@ -303,7 +303,7 @@ def add_forecast_plot(
         ),
         HoverTool(
             tooltips=[
-                ("Country", "@country"),
+                ("Country/Region", "@country"),
                 ("Date", "@date_string"),
                 (f"{metric_word} Forecast", "@point_forecast{,}"),
             ],
@@ -311,7 +311,7 @@ def add_forecast_plot(
         ),
         HoverTool(
             tooltips=[
-                ("Country", "@country"),
+                ("Country/Region", "@country"),
                 ("Date", "@date_string"),
                 ("Lower 80% Confidence Interval", "@lo_80{,}"),
             ],
@@ -319,7 +319,7 @@ def add_forecast_plot(
         ),
         HoverTool(
             tooltips=[
-                ("Country", "@country"),
+                ("Country/Region", "@country"),
                 ("Date", "@date_string"),
                 ("Upper 80% Confidence Interval", "@hi_80{,}"),
             ],
@@ -327,7 +327,7 @@ def add_forecast_plot(
         ),
         HoverTool(
             tooltips=[
-                ("Country", "@country"),
+                ("Country/Region", "@country"),
                 ("Date", "@date_string"),
                 ("Lower 95% Confidence Interval", "@lo_95{,}"),
             ],
@@ -335,7 +335,7 @@ def add_forecast_plot(
         ),
         HoverTool(
             tooltips=[
-                ("Country", "@country"),
+                ("Country/Region", "@country"),
                 ("Date", "@date_string"),
                 ("Upper 95% Confidence Interval", "@hi_95{,}"),
             ],
@@ -535,12 +535,12 @@ def smoothing_update(attr, old, new):
 
 # dropdowns
 select1 = Select(
-    title="Country 1", options=countries, value="World", css_classes=["country_1"]
+    title="Country/Region 1", options=countries, value="World", css_classes=["country_1"]
 )
 select1.on_change("value", country_1_update_plot)
 
 select2 = Select(
-    title="Country 2", options=countries, value="None", css_classes=["country_2"]
+    title="Country/Region 2", options=countries, value="None", css_classes=["country_2"]
 )
 select2.on_change("value", country_2_update_plot)
 
@@ -615,7 +615,7 @@ for metric, title in metrics.items():
                     p.add_tools(
                         HoverTool(
                             tooltips=[
-                                ("Country", "@country"),
+                                ("Country/Region", "@country"),
                                 ("Date", "@date_string"),
                                 (title, "@" + metric + "{,}"),
                             ],
@@ -623,7 +623,7 @@ for metric, title in metrics.items():
                         ),
                         HoverTool(
                             tooltips=[
-                                ("Country", "@country"),
+                                ("Country/Region", "@country"),
                                 ("Days since 100th Case", "@days_since_100"),
                                 ("Double every 3 days", "@double_3_cases{,}"),
                             ],
@@ -631,7 +631,7 @@ for metric, title in metrics.items():
                         ),
                         HoverTool(
                             tooltips=[
-                                ("Country", "@country"),
+                                ("Country/Region", "@country"),
                                 ("Days since 100th Case", "@days_since_100"),
                                 ("Double every 5 days", "@double_5_cases{,}"),
                             ],
@@ -639,7 +639,7 @@ for metric, title in metrics.items():
                         ),
                         HoverTool(
                             tooltips=[
-                                ("Country", "@country"),
+                                ("Country/Region", "@country"),
                                 ("Days since 100th Case", "@days_since_100"),
                                 ("Double every 10 days", "@double_10_cases{,}"),
                             ],
@@ -674,7 +674,7 @@ for metric, title in metrics.items():
                     p.add_tools(
                         HoverTool(
                             tooltips=[
-                                ("Country", "@country"),
+                                ("Country/Region", "@country"),
                                 ("Days since 10th Death", "@days_since_10"),
                                 ("Date", "@date_string"),
                                 (title, "@" + metric + "{,}"),
@@ -683,7 +683,7 @@ for metric, title in metrics.items():
                         ),
                         HoverTool(
                             tooltips=[
-                                ("Country", "@country"),
+                                ("Country/Region", "@country"),
                                 ("Days since 10th Death", "@days_since_10"),
                                 ("Double every 3 days", "@double_3_deaths{,}"),
                             ],
@@ -691,7 +691,7 @@ for metric, title in metrics.items():
                         ),
                         HoverTool(
                             tooltips=[
-                                ("Country", "@country"),
+                                ("Country/Region", "@country"),
                                 ("Days since 10th Death", "@days_since_10"),
                                 ("Double every 5 days", "@double_5_deaths{,}"),
                             ],
@@ -699,7 +699,7 @@ for metric, title in metrics.items():
                         ),
                         HoverTool(
                             tooltips=[
-                                ("Country", "@country"),
+                                ("Country/Region", "@country"),
                                 ("Days since 10th Death", "@days_since_10"),
                                 ("Double every 10 days", "@double_10_deaths{,}"),
                             ],
@@ -712,7 +712,7 @@ for metric, title in metrics.items():
                 p.add_tools(
                     HoverTool(
                         tooltips=[
-                            ("Country", "@country"),
+                            ("Country/Region", "@country"),
                             ("Date", "@date_string"),
                             (title, "@" + metric + "{,}"),
                         ],
@@ -725,7 +725,7 @@ for metric, title in metrics.items():
             p.add_tools(
                 HoverTool(
                     tooltips=[
-                        ("Country", "@country"),
+                        ("Country/Region", "@country"),
                         ("Date", "@date_string"),
                         (title, "@" + metric + "{,}"),
                     ],
@@ -755,9 +755,9 @@ for metric, title in metrics.items():
             p,
             metric,
             actual_color="#21618C",
-            fc_color="#0000ff",
-            color_80="#6666ff",
-            color_95="#ccccff",
+            fc_color="#2773a5",
+            color_80="#5aa6d8",
+            color_95="#acd2ec",
         )
         p = add_forecast_plot(
             sc2,
@@ -765,14 +765,19 @@ for metric, title in metrics.items():
             p,
             metric,
             actual_color="#ff4d4d",
-            fc_color="#990000",
+            fc_color="#ff6666",
             color_80="#ff9999",
             color_95="#ffcccc",
         )
         plots["forecast_" + metric + axis_type] = p
 
 # log-linear tabs
+line_div_text = """
+<h4>Explanation</h4>
+Confirmed cases and deaths are cumulative numbers, so the full number of reported cases and deaths up to a certain day. New cases/deaths are the number of cases/deaths reported on that day alone. Acceleration of cases/deaths is the rate of change of new cases/deaths. A higher acceleration means not only are cases growing, but they're growing at an <em>increasing</em> rate. A negative acceleration is good and means that cases are still growing, but not as quickly.
+"""
 linear_tab_layout = column(
+    row(Div(text=line_div_text, width=900)),
     row(plots["confirmedlinear"], plots["deathslinear"]),
     row(plots["smooth_new_caseslinear"], plots["smooth_new_deathslinear"]),
     row(plots["smooth_accel_caseslinear"], plots["smooth_accel_deathslinear"]),
@@ -788,6 +793,7 @@ log_tab_layout = column(
     row(plots["smooth_accel_caseslog"], plots["smooth_accel_deathslog"]),
 )
 bar_tab_layout = column(
+    row(Div(text=line_div_text, width=900)),
     row(plots["confirmedbar"], plots["deathsbar"]),
     row(plots["smooth_new_casesbar"], plots["smooth_new_deathsbar"]),
     row(plots["smooth_accel_casesbar"], plots["smooth_accel_deathsbar"]),
@@ -812,7 +818,7 @@ The "Acceleration of Last 5 Days" column is calculated by the average second der
 """
 accel_div = Div(text=accel_div_text, width=1000)
 acceleration_tab = Panel(child=column(accel_div,acceleration_table), title="All Country Overview")
-tabs = Tabs(tabs=[linear_tab, log_tab, bar_tab, forecast_tab, acceleration_tab])
+tabs = Tabs(tabs=[bar_tab, linear_tab, log_tab, forecast_tab, acceleration_tab])
 
 # initialize plots with date format
 all_plots = list(plots.values())
