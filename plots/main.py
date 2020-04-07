@@ -23,6 +23,7 @@ import numpy as np
 import pandas as pd
 import datetime
 
+
 # data read
 data = pd.read_csv("plots/data/transformed_data.csv", parse_dates=["date"])
 data["date_string"] = data.date.dt.strftime("%Y-%0m-%0d")
