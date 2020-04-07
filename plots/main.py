@@ -1,6 +1,6 @@
 from bokeh.plotting import ColumnDataSource, curdoc, figure
 from bokeh.io import output_file, show
-from bokeh.layouts import column, row, gridplot
+from bokeh.layouts import column, row, gridplot, Spacer
 from bokeh.models import (
     Band,
     DateRangeSlider,
@@ -136,7 +136,7 @@ columns = [
     ),
 ]
 data_table = DataTable(
-    source=source_table, columns=columns, width=500, height=200, row_height=25
+    source=source_table, columns=columns, width=600, height=200, row_height=25
 )
 
 # acceleration overview table source
@@ -563,7 +563,7 @@ select2 = Select(
 select2.on_change("value", country_2_update_plot)
 
 x_col = Select(
-    title="X Axis",
+    title="X Axis [1]",
     options=["Date", "Days since 100th case", "Days since 10th death"],
     value="Date",
 )
@@ -581,7 +581,7 @@ date_range = DateRangeSlider(
 date_range.on_change("value", date_range_update_plot)
 
 smoothing = Select(
-    title="# Days for moving average smoothing",
+    title="# Days for moving average smoothing [2]",
     options=["0", "3", "5", "7", "9"],
     value="0",
 )
@@ -791,8 +791,7 @@ for metric, title in metrics.items():
 
 # log-linear tabs
 line_div_text = """
-<h4>Explanation</h4>
-Confirmed cases and deaths are cumulative numbers, so the full number of reported cases and deaths up to a certain day. New cases/deaths are the number of cases/deaths reported on that day alone. Acceleration of cases/deaths is the rate of change of new cases/deaths. A higher acceleration means not only are cases growing, but they're growing at an <em>increasing</em> rate. A negative acceleration is good and means that cases are still growing, but not as quickly.
+<h4>Explanation: README [3]</h4>
 """
 linear_tab_layout = column(
     row(Div(text=line_div_text, width=600)),
@@ -804,8 +803,7 @@ linear_tab_layout = column(
     row(plots["smooth_accel_deathslinear"]),
 )
 log_div_text = """
-<h4>Doubling times </h4>
-The dotted lines on the confirmed cases and deaths graphs show the number of cases there would be if they doubled every 3, 5, or 10 days for country 1. They start from the day of the 100th confirmed case and 10th death for cases and deaths respectively. As a result they are interpreted most easily when the X axis is set to those respective metrics. Slopes rather than absolute levels should be used for comparison.
+<h4>Explanation: README [4]</h4>
 """
 log_tab_layout = column(
     row(Div(text=log_div_text, width=600)),
@@ -826,8 +824,7 @@ bar_tab_layout = column(
     row(plots["smooth_accel_deathsbar"]),
 )
 forecast_text = """
-<h4>Forecasts</h4>
-Forecast numbers and plots are created using <a href="https://otexts.com/fpp2/holt.html">Holt's linear trend method with dampening</a>. This is a linear model, which means it probably significantly underestimates countries that are experiencing the acceleration phase of their epidemics. It will probably be better at forecasting countries at a more mature phase, such as Italy or Spain. Important to note is that this is just one of many methods that can forecast the data, and I have not spent a significant amount of time validating it. I may spend more time in the future investigating and adding better forecasting methods. Plots display the point forecast and 80% prediction interval (darker shading), and 95% prediction interval (lighter shading).
+<h4>Explanation: README [5]</h4>
 """
 forecast_div = Div(text=forecast_text, width=600)
 forecast_tab_layout = column(
@@ -842,14 +839,47 @@ log_tab = Panel(child=log_tab_layout, title="Log Scale")
 bar_tab = Panel(child=bar_tab_layout, title="Bar Graphs")
 forecast_tab = Panel(child=forecast_tab_layout, title="Forecasts")
 accel_div_text = """
-<h4>Worldwide Overview</h4>
-The "Acceleration of Last 5 Days" column is calculated by the average second derivative over the last 5 days / number of cases 5 days ago. It doesn't have much intrinsic meaning but is rather a more comparable/relative measure between countries of how fast new cases are accelerating. <strong>The table is scrollable and sortable. Highlight a row by clicking or tapping for reference when scrolling horizontally</strong>.
+<h4>Explanation: README [6]</h4>
 """
 accel_div = Div(text=accel_div_text, width=600)
 acceleration_tab = Panel(
-    child=column(accel_div, acceleration_table), title="All Country Overview"
+    child=column(accel_div, acceleration_table), title="Overview"
 )
-tabs = Tabs(tabs=[bar_tab, linear_tab, log_tab, forecast_tab, acceleration_tab])
+notes_text = """
+<h4>About</h4>
+<p>
+This page uses data from <a href="https://github.com/CSSEGISandData/COVID-19">Johns Hopkins CSSE</a>, <a href="https://github.com/nytimes/covid-19-data">the New York Times</a> (for US state level data), and the Robert Koch Institute via <a href="https://npgeo-corona-npgeo-de.hub.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0">this</a> api (for German Bundesländer data) to create charts on the status of COVID-19 cases and deaths around the world. It is updated once a day around 10:00am CET. The code used to make this site is hosted <a href="https://github.com/dhopp1/COVID-19-status-reports">here</a>. Country groupings such as North America come from Wikipedia, but to see specifically which countries are included in each group check the <i>country_groups.csv</i> file <a href="https://github.com/dhopp1/COVID-19-status-reports/tree/master/plots/data">here</a>.
+<br>
+</p>
+<p style="font-size:14px">
+<strong>*Note:</strong> if you choose two countries with a large discrepency in case load, e.g. US and Cuba, the smaller country's curves will probably be invisible due to the scale. Set the second country to one with a more similar caseload to the smaller country, or set the second country to "None" to see the curve more clearly. Comparing two countries with bar plots may result in overlapping bars, so the "Linear Scale" tab for lines is a better option for this case.
+</p>
+<p>
+<h4>Explanations</h4>
+<p>
+<strong>[1]</strong> The units of the x (horizontal) axis. Days since 100th case are the number of days since the 100th case of the country were recorded. It is useful for comparing countries at different stages in their epidemics by giving them a common x axis. Days since 10th death is the same idea, but useful when looking at death rates.
+</p>
+<p>
+<strong>[2]</strong> This filter refers to how much smoothing occurs in the new cases/deaths and acceleration cases/deaths plots. Countries can report very different numbers from day to day due to many factors like weekends, accounting errors, etc., so this dropdown attempts to smooth that volatility a little to see a better idea of the trend. 3 means that each day's value will be replaced with the average of 3 days' values, and so on. So a higher number means more smoothing.
+</p>
+<p>
+<strong>[3]</strong> Confirmed cases and deaths are cumulative numbers, so the full number of reported cases and deaths up to a certain day. New cases/deaths are the number of cases/deaths reported on that day alone. Acceleration of cases/deaths is the rate of change of new cases/deaths. A higher acceleration means not only are cases growing, but they're growing at an <em>increasing</em> rate. A negative acceleration is good and means that cases are still growing, but not as quickly.
+</p>
+<p>
+<strong>[4]</strong> See an explanation of a logarithmic scale <a href="https://en.wikipedia.org/wiki/Logarithmic_scale">here</a>. The dotted lines on the confirmed cases and deaths graphs show the number of cases there would be if they doubled every 3, 5, or 10 days for country 1. They start from the day of the 100th confirmed case and 10th death for cases and deaths respectively. As a result they are interpreted most easily when the X axis is set to those respective metrics. Slopes rather than absolute levels should be used for comparison.
+</p>
+<p>
+<strong>[5]</strong> Forecast numbers and plots are created using <a href="https://otexts.com/fpp2/holt.html">Holt's linear trend method with dampening</a>. This is a linear model, which means it probably significantly underestimates countries that are experiencing the acceleration phase of their epidemics. It will probably be better at forecasting countries at a more mature phase, such as Italy or Spain. Important to note is that this is just one of many methods that can forecast the data, and I have not spent a significant amount of time validating it. I may spend more time in the future investigating and adding better forecasting methods. Plots display the point forecast and 80% prediction interval (darker shading), and 95% prediction interval (lighter shading).
+</p>
+<p>
+<strong>[6]</strong> The "Acceleration of Last 5 Days" column is calculated by the average second derivative over the last 5 days / number of cases 5 days ago. It doesn't have much intrinsic meaning but is rather a more comparable/relative measure between countries of how fast new cases are accelerating. The table is scrollable and sortable. Highlight a row by clicking or tapping for reference when scrolling horizontally.
+</p>
+"""
+notes = Div(text=notes_text, width=600)
+notes_tab = Panel(
+    child=column(notes), title="README"
+)
+tabs = Tabs(tabs=[bar_tab, linear_tab, log_tab, forecast_tab, acceleration_tab, notes_tab])
 # initialize plots with date format
 all_plots = list(plots.values())
 for p in all_plots:
@@ -857,13 +887,16 @@ for p in all_plots:
         days=["%d %B %Y"], months=["%d %B %Y"], years=["%d %B %Y"]
     )
 
-
 # final layout
 layout = column(
     row(select1, select2),
+    Spacer(height=15),
     row(x_col, smoothing),
+    Spacer(height=15),
     row(date_range),
+    Spacer(height=20),
     row(data_table),
+    Spacer(height=30),
     row(tabs),
 )
 curdoc().add_root(layout)
