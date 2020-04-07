@@ -25,14 +25,6 @@
     		<br><br>
     		<strong>*Note:</strong> if you choose two countries with a large discrepency in case load, e.g. US and Cuba, the smaller country's curves will probably be invisible due to the scale. Set the second country to one with a more similar caseload to the smaller country, or set the second country to "None" to see the curve more clearly.
     	</p>
-    	<h3>Forecasts</h3>
-    	<p>
-			Forecast numbers and plots are created using <a href="https://otexts.com/fpp2/holt.html">Holt's linear trend method with dampening</a>. This is a linear model, which means it probably significantly underestimates countries that are experiencing the acceleration phase of their epidemics. It will probably be better at forecasting countries at a more mature phase, such as Italy or Spain. Important to note is that this is just one of many methods that can forecast the data, and I have not spent a significant amount of time validating it. I may spend more time in the future investigating and adding better forecasting methods. Plots display the point forecast and 80% prediction interval (darker shading), and 95% prediction interval (lighter shading).
-    	</p>
-    	<h3>Doubling Times</h3>
-    	<p>
-    		The dotted lines on the log graphs show the number of cases there would be if they doubled every 3, 5, or 10 days for country 1. They start from the day of the 100th confirmed case and 10th death for cases and deaths respectively. As a result they are interpreted most easily when the X axis is set to those respective metrics. Slopes rather than absolute levels should be used for comparison.
-    	</p>
       {{ plot_div|indent(8) }}
       {{ plot_script|indent(8) }}
     </body>

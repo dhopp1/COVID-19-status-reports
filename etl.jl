@@ -3,6 +3,7 @@ CSV,
 CSVFiles,
 DataFrames,
 Dates,
+Format,
 HTTP,
 JSON,
 RCall,
@@ -253,6 +254,32 @@ end
 
 # write out all country file
 CSV.write("plots/data/transformed_data.csv", all_country_data)
+
+# adding acceleration table
+countries = unique(all_country_data.country)
+acceleration = []
+cases_5_ago = []
+cases_now = []
+for country in countries
+    metric = mean(all_country_data[all_country_data.country .== country, :acceleration_cases][end-4:end])
+    metric /= all_country_data[all_country_data.country .== country, :confirmed][end-4]
+    if isnan(metric)
+        metric = 0
+    end
+    push!(acceleration, metric)
+    push!(cases_5_ago, all_country_data[all_country_data.country .== country, :confirmed][end-4])
+    push!(cases_now, all_country_data[all_country_data.country .== country, :confirmed][end])
+end
+last_5 = rename!(DataFrame([countries, acceleration, cases_now, cases_5_ago]), [:country, :last_5_accel, :cases_now, :cases_5_ago])
+last_5[!, :perc_increase] = last_5.cases_now ./ last_5.cases_5_ago .- 1
+tmp = sort(last_5[(last_5.cases_5_ago .> 20) .& (last_5.cases_now .> 1000), :], order(:last_5_accel, rev=true))
+tmp[!, :perc_increase] = string.(round.(tmp.perc_increase .* 100, digits=2)) .* "%"
+rename!(tmp, [:Country, Symbol("Acceleration of Last 5 Days"), Symbol("Cases Now"), Symbol("Cases 5 Days Ago"), Symbol("% Increase in 5 Days")])
+tmp[!, Symbol("Acceleration of Last 5 Days")] = string.(round.(tmp[!, Symbol("Acceleration of Last 5 Days")] * 100, digits=2)) .* "%"
+for col in [Symbol("Cases Now"), Symbol("Cases 5 Days Ago")]
+    tmp[!, col] = format.(tmp[!, col], commas=true)
+end
+CSV.write("plots/data/acceleration_data", tmp)
 
 # adding forecast
 function r_forecast(x, y; country, metric, r_forecast_function, time_function, h)

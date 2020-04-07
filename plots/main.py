@@ -5,6 +5,7 @@ from bokeh.models import (
     Band,
     DateRangeSlider,
     DatetimeTickFormatter,
+    Div,
     HoverTool,
     NumeralTickFormatter,
     Select,
@@ -37,6 +38,8 @@ data.days_since_10 = data.days_since_10.replace(0, np.nan)
 forecasts = pd.read_csv("plots/data/forecasts.csv", parse_dates=["date"])
 forecasts["date_string"] = forecasts.date.dt.strftime("%Y-%0m-%0d")
 forecasts["x_col"] = forecasts.date
+
+acceleration_data = pd.read_csv("plots/data/acceleration_data")
 
 groups = pd.read_csv("plots/data/country_groups.csv")
 groups = list(groups.group.unique())
@@ -110,6 +113,8 @@ def gen_table(country1, country2):
     table_dict = dict(overview_df)
     return table_dict
 
+acceleration_dict = dict(acceleration_data)
+
 
 # initializing data sources
 source_table = ColumnDataSource(gen_table("World", "None"))
@@ -130,6 +135,38 @@ columns = [
 ]
 data_table = DataTable(
     source=source_table, columns=columns, width=500, height=200, row_height=20
+)
+source_acceleration_table = ColumnDataSource(acceleration_dict)
+#Country,Acceleration of Last 5 Days,Cases Now,Cases 5 Days Ago,% Increase in 5 Days
+columns = [
+    TableColumn(
+        field="Country",
+        title="Country",
+        formatter=HTMLTemplateFormatter(template=templatebold),
+    ),
+    TableColumn(
+        field="Acceleration of Last 5 Days",
+        title="Acceleration of Last 5 Days",
+        formatter=HTMLTemplateFormatter(template=templatenormal),
+    ),
+    TableColumn(
+        field="Cases Now",
+        title="Cases Now",
+        formatter=HTMLTemplateFormatter(template=templatenormal),
+    ),
+    TableColumn(
+        field="Cases 5 Days Ago",
+        title="Cases 5 Days Ago",
+        formatter=HTMLTemplateFormatter(template=templatenormal),
+    ),
+    TableColumn(
+        field="% Increase in 5 Days",
+        title="% Increase in 5 Days",
+        formatter=HTMLTemplateFormatter(template=templatenormal),
+    ),
+]
+acceleration_table = DataTable(
+    source=source_acceleration_table, columns=columns, width=750, height=600
 )
 
 source = ColumnDataSource(data.loc[data.country == "World", :])
@@ -695,7 +732,11 @@ for metric, title in metrics.items():
         else:
             sc = fc_source_deaths
             sc2 = fc_source_deaths2
-        p = figure(tools=["save"], title=title, y_axis_type=axis_type)
+        if axis_type == "linear":
+            fc_title = title + " (linear scale)"
+        else:
+            fc_title = title + " (log scale)"
+        p = figure(tools=["save"], title=fc_title, y_axis_type=axis_type)
         p = add_forecast_plot(
             sc,
             source,
@@ -723,25 +764,43 @@ linear_tab_layout = column(
     row(plots["confirmedlinear"], plots["deathslinear"]),
     row(plots["smooth_new_caseslinear"], plots["smooth_new_deathslinear"]),
     row(plots["smooth_accel_caseslinear"], plots["smooth_accel_deathslinear"]),
-    row(plots["forecast_confirmedlinear"], plots["forecast_deathslinear"]),
 )
+log_div_text = """
+<h4>Doubling times </h4>
+The dotted lines on the graphs show the number of cases there would be if they doubled every 3, 5, or 10 days for country 1. They start from the day of the 100th confirmed case and 10th death for cases and deaths respectively. As a result they are interpreted most easily when the X axis is set to those respective metrics. Slopes rather than absolute levels should be used for comparison.
+"""
 log_tab_layout = column(
+    row(Div(text=log_div_text, width=900)),
     row(plots["confirmedlog"], plots["deathslog"]),
     row(plots["smooth_new_caseslog"], plots["smooth_new_deathslog"]),
     row(plots["smooth_accel_caseslog"], plots["smooth_accel_deathslog"]),
-    row(plots["forecast_confirmedlog"], plots["forecast_deathslog"]),
 )
 bar_tab_layout = column(
     row(plots["confirmedbar"], plots["deathsbar"]),
     row(plots["smooth_new_casesbar"], plots["smooth_new_deathsbar"]),
     row(plots["smooth_accel_casesbar"], plots["smooth_accel_deathsbar"]),
+)
+forecast_text = """
+<h4>Forecasts</h4>
+Forecast numbers and plots are created using <a href="https://otexts.com/fpp2/holt.html">Holt's linear trend method with dampening</a>. This is a linear model, which means it probably significantly underestimates countries that are experiencing the acceleration phase of their epidemics. It will probably be better at forecasting countries at a more mature phase, such as Italy or Spain. Important to note is that this is just one of many methods that can forecast the data, and I have not spent a significant amount of time validating it. I may spend more time in the future investigating and adding better forecasting methods. Plots display the point forecast and 80% prediction interval (darker shading), and 95% prediction interval (lighter shading).
+"""
+forecast_div = Div(text=forecast_text, width=900)
+forecast_tab_layout = column(
+    row(forecast_div),
     row(plots["forecast_confirmedlinear"], plots["forecast_deathslinear"]),
+    row(plots["forecast_confirmedlog"], plots["forecast_deathslog"])
 )
 linear_tab = Panel(child=linear_tab_layout, title="Linear Scale")
 log_tab = Panel(child=log_tab_layout, title="Log Scale")
 bar_tab = Panel(child=bar_tab_layout, title="Bar Graphs")
-#table_tab = Panel(child=column(data_table), title="Table Summary")
-tabs = Tabs(tabs=[linear_tab, log_tab, bar_tab])#, table_tab])
+forecast_tab = Panel(child=forecast_tab_layout, title="Forecasts")
+accel_div_text = """
+<h4>Case Acceleration</h4>
+The "Acceleration of Last 5 Days" column is calculated by the average second derivative over the last 5 days / number of cases 5 days ago. It doesn't have much intrinsic meaning but is rather a more comparable/relative measure between countries of how fast new cases are accelerating. <strong>The table is scrollable</strong>.
+"""
+accel_div = Div(text=accel_div_text, width=900)
+acceleration_tab = Panel(child=column(accel_div,acceleration_table), title="Acceleration Summary")
+tabs = Tabs(tabs=[linear_tab, log_tab, bar_tab, forecast_tab, acceleration_tab])
 
 # initialize plots with date format
 all_plots = list(plots.values())
