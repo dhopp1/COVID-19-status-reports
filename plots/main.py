@@ -276,9 +276,14 @@ def forecast_plot(
     )
     return p
 
+title_text_font_size='14pt'
+axis_text_font_size='11pt'
 
 def add_plot(plot_function, metric, title, y_axis_type, name=None):
     p = figure(tools=["save"], title=title, y_axis_type=y_axis_type)
+    p.xaxis.major_label_text_font_size = axis_text_font_size
+    p.yaxis.major_label_text_font_size = axis_text_font_size
+    p.title.text_font_size = title_text_font_size
     plot_function(source, p, "#21618C", select1.value, metric, 0.25, name)
     plot_function(source2, p, "#ff4d4d", select1.value, metric, -0.25, name)
     p.xaxis.major_label_orientation = 3.14 / 4
@@ -357,6 +362,9 @@ def add_forecast_plot(
             names=["hi_95"],
         ),
     )
+    p.xaxis.major_label_text_font_size = axis_text_font_size
+    p.yaxis.major_label_text_font_size = axis_text_font_size
+    p.title.text_font_size = title_text_font_size
     p.xaxis.major_label_orientation = 3.14 / 4
     p.renderers.extend(
         [Span(location=0, dimension="width", line_color="black", line_width=1)]

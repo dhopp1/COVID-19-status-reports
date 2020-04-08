@@ -11,7 +11,7 @@
 }
 
 .bk-root {
-	font-size: 15px;
+	font-size: 16px;
 }
 
 .bk-root .bk-data-table{
@@ -29,4 +29,10 @@ body {
 	margin-left: auto;
 	margin-right: auto;
 	line-height: 1.3;
+}
+
+@media only screen and (max-width: 1000px) {
+	body {
+		zoom: 125%;
+	}
 }
