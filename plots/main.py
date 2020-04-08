@@ -465,7 +465,7 @@ def x_axis_update_plot(attr, old, new):
         x_col = "date"
         for p in all_plots[:-4]:
             p.xaxis.formatter = DatetimeTickFormatter(
-                days=["%d %B %Y"], months=["%d %B %Y"], years=["%d %B %Y"]
+                days=["%d %b"], months=["%d %b"], years=["%d %b"]
             )
     elif new == "Days since 100th case":
         x_col = "days_since_100"
@@ -862,25 +862,29 @@ This page uses data from <a href="https://github.com/CSSEGISandData/COVID-19">Jo
 <p style="font-size:14px">
 <strong>*Note:</strong> if you choose two countries with a large discrepency in case load, e.g. US and Cuba, the smaller country's curves will probably be invisible due to the scale. Set the second country to one with a more similar caseload to the smaller country, or set the second country to "None" to see the curve more clearly. Comparing two countries with bar plots may result in overlapping bars, so the "Linear Scale" tab for lines is a better option for this case.
 </p>
+<h4>A note on testing</h4>
+<p>
+All this site does is give access to the data produced at the sources listed in the previous section. Different countries have different testing regimens and their governments have different policies. That means that these numbers alone cannot be taken as encapsulating the true extent of the situation in any given country. You can read more about the importance of testing in <a href="https://fivethirtyeight.com/features/coronavirus-case-counts-are-meaningless/">this</a> article.
+</p>
 <p>
 <h4>Explanations</h4>
 <p>
-<strong>[1]</strong> The units of the x (horizontal) axis. Days since 100th case are the number of days since the 100th case of the country were recorded. It is useful for comparing countries at different stages in their epidemics by giving them a common x axis. Days since 10th death is the same idea, but useful when looking at death rates.
+<strong>[1] X Axis:</strong> The units of the x (horizontal) axis. Days since 100th case are the number of days since the 100th case of the country were recorded. It is useful for comparing countries at different stages in their epidemics by giving them a common x axis. Days since 10th death is the same idea, but useful when looking at death rates.
 </p>
 <p>
-<strong>[2]</strong> This filter refers to how much smoothing occurs in the new cases/deaths and acceleration cases/deaths plots. Countries can report very different numbers from day to day due to many factors like weekends, accounting errors, etc., so this dropdown attempts to smooth that volatility a little to see a better idea of the trend. 3 means that each day's value will be replaced with the average of 3 days' values, and so on. So a higher number means more smoothing.
+<strong>[2] Moving Average Smoothing:</strong> This filter refers to how much smoothing occurs in the new cases/deaths and acceleration cases/deaths plots. Countries can report very different numbers from day to day due to many factors like weekends, accounting errors, etc., so this dropdown attempts to smooth that volatility a little to see a better idea of the trend. 3 means that each day's value will be replaced with the average of 3 days' values, and so on. So a higher number means more smoothing.
 </p>
 <p>
-<strong>[3]</strong> Confirmed cases and deaths are cumulative numbers, so the full number of reported cases and deaths up to a certain day. New cases/deaths are the number of cases/deaths reported on that day alone. Acceleration of cases/deaths is the rate of change of new cases/deaths. A higher acceleration means not only are cases growing, but they're growing at an <em>increasing</em> rate. A negative acceleration is good and means that cases are still growing, but not as quickly.
+<strong>[3] Bar Graphs/Linear Scale:</strong> Confirmed cases and deaths are cumulative numbers, so the full number of reported cases and deaths up to a certain day. New cases/deaths are the number of cases/deaths reported on that day alone. Acceleration of cases/deaths is the rate of change of new cases/deaths. A higher acceleration means not only are cases growing, but they're growing at an <em>increasing</em> rate. A negative acceleration is good and means that cases are still growing, but not as quickly.
 </p>
 <p>
-<strong>[4]</strong> See an explanation of a logarithmic scale <a href="https://en.wikipedia.org/wiki/Logarithmic_scale">here</a>. The dotted lines on the confirmed cases and deaths graphs show the number of cases there would be if they doubled every 3, 5, or 10 days for country 1. They start from the day of the 100th confirmed case and 10th death for cases and deaths respectively. As a result they are interpreted most easily when the X axis is set to those respective metrics. Slopes rather than absolute levels should be used for comparison.
+<strong>[4]: Log Scale </strong> See an explanation of a logarithmic scale <a href="https://en.wikipedia.org/wiki/Logarithmic_scale">here</a>. The dotted lines on the confirmed cases and deaths graphs show the number of cases there would be if they doubled every 3, 5, or 10 days for country 1. They start from the day of the 100th confirmed case and 10th death for cases and deaths respectively. As a result they are interpreted most easily when the X axis is set to those respective metrics. Slopes rather than absolute levels should be used for comparison.
 </p>
 <p>
-<strong>[5]</strong> Forecast numbers and plots are created using <a href="https://otexts.com/fpp2/holt.html">Holt's linear trend method with dampening</a>. This is a linear model, which means it probably significantly underestimates countries that are experiencing the acceleration phase of their epidemics. It will probably be better at forecasting countries at a more mature phase, such as Italy or Spain. Important to note is that this is just one of many methods that can forecast the data, and I have not spent a significant amount of time validating it. I may spend more time in the future investigating and adding better forecasting methods. Plots display the point forecast and 80% prediction interval (darker shading), and 95% prediction interval (lighter shading).
+<strong>[5]: Forecasts</strong> Forecast numbers and plots are created using <a href="https://otexts.com/fpp2/holt.html">Holt's linear trend method with dampening</a>. This is a linear model, which means it probably significantly underestimates countries that are experiencing the acceleration phase of their epidemics. It will probably be better at forecasting countries at a more mature phase, such as Italy or Spain. Important to note is that this is just one of many methods that can forecast the data, and I have not spent a significant amount of time validating it. I may spend more time in the future investigating and adding better forecasting methods. Plots display the point forecast and 80% prediction interval (darker shading), and 95% prediction interval (lighter shading).
 </p>
 <p>
-<strong>[6]</strong> The "Acceleration of Last 5 Days" column is calculated by the average second derivative over the last 5 days / number of cases 5 days ago. It doesn't have much intrinsic meaning but is rather a more comparable/relative measure between countries of how fast new cases are accelerating. The table is scrollable and sortable. Highlight a row by clicking or tapping for reference when scrolling horizontally.
+<strong>[6]: Overview Table</strong> The "Acceleration of Last 5 Days" column is calculated by the average second derivative over the last 5 days / number of cases 5 days ago. It doesn't have much intrinsic meaning but is rather a more comparable/relative measure between countries of how fast new cases are accelerating. The table is scrollable and sortable. Highlight a row by clicking or tapping for reference when scrolling horizontally.
 </p>
 """
 notes = Div(text=notes_text, width=600)
@@ -892,7 +896,7 @@ tabs = Tabs(tabs=[bar_tab, linear_tab, log_tab, forecast_tab, acceleration_tab, 
 all_plots = list(plots.values())
 for p in all_plots:
     p.xaxis.formatter = DatetimeTickFormatter(
-        days=["%d %B %Y"], months=["%d %B %Y"], years=["%d %B %Y"]
+        days=["%d %b"], months=["%d %b"], years=["%d %b"]
     )
 
 # final layout
