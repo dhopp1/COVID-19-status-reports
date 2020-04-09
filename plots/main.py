@@ -856,7 +856,7 @@ acceleration_tab = Panel(
 notes_text = """
 <h4>About</h4>
 <p>
-This page uses data from <a href="https://github.com/CSSEGISandData/COVID-19">Johns Hopkins CSSE</a>, <a href="https://github.com/nytimes/covid-19-data">the New York Times</a> (for US state level data), and the Robert Koch Institute via <a href="https://npgeo-corona-npgeo-de.hub.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0">this</a> api (for German Bundesländer data) to create charts on the status of COVID-19 cases and deaths around the world. It is updated once a day around 10:00am CET. The code used to make this site is hosted <a href="https://github.com/dhopp1/COVID-19-status-reports">here</a>. Country groupings such as North America come from Wikipedia, but to see specifically which countries are included in each group check the <i>country_groups.csv</i> file <a href="https://github.com/dhopp1/COVID-19-status-reports/tree/master/plots/data">here</a>.
+This page uses data from <a href="https://github.com/CSSEGISandData/COVID-19">Johns Hopkins CSSE</a> and the Robert Koch Institute via <a href="https://npgeo-corona-npgeo-de.hub.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0">this</a> api (for German Bundesländer data) to create charts on the status of COVID-19 cases and deaths around the world. It is updated once a day around 10:00am CET. The code used to make this site is hosted <a href="https://github.com/dhopp1/COVID-19-status-reports">here</a>. Country groupings such as North America come from Wikipedia, but to see specifically which countries are included in each group check the <i>country_groups.csv</i> file <a href="https://github.com/dhopp1/COVID-19-status-reports/tree/master/plots/data">here</a>.
 <br>
 </p>
 <p style="font-size:14px">

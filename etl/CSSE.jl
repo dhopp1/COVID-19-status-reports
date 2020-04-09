@@ -3,7 +3,10 @@ module CSSE
 using
 CSV,
 CSVFiles,
-DataFrames
+DataFrames,
+Dates
+
+cols(cols, operator) = eval(Meta.parse(replace(":" .* (cols .|> string) .* " => $operator" .|> string |> string, r"\"|\[|\]"=>"")))
 
 death_path = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv"
 confirmed_path = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv"
@@ -11,32 +14,59 @@ recovered_path = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_
 us_confirmed_path = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv"
 us_death_path = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv"
 
-death = load(death_path) |> DataFrame! |> x -> rename!(x, Dict(Symbol("Province/State") => :state, Symbol("Country/Region") => :country))
+# drop US, get it from state accumulation except for recovered
+# missing 22.01 data, duplicated 23.01 data
+println("CSSE: initial CSV read")
+
+# combining us counties to state level
+us_confirmed = load(us_confirmed_path) |> DataFrame! |> x -> rename!(x, Dict(Symbol("Province_State") => :state, Symbol("Country_Region") => :country, :Long_ => :Long)) |> x -> hcat(x[!, 7:10], x[!, 13], x[!, 13:end], makeunique=true) |> x -> rename!(x, Dict(:x1 => Symbol("1/22/20")))
+rename!(us_confirmed, [[:state, :country]; Symbol.(["x" * string(i) for i in 1:ncol(us_confirmed)-2])])
+us_confirmed = by(us_confirmed, [:state, :country], cols(names(us_confirmed)[3:end], "sum"))
+
+us_death = load(us_death_path) |> DataFrame! |> x -> rename!(x, Dict(Symbol("Province_State") => :state, Symbol("Country_Region") => :country, :Long_ => :Long)) |> x -> x[!, [7:10;13:end]]
+rename!(us_death, [[:state, :country]; Symbol.(["x" * string(i) for i in 1:ncol(us_death)-2])])
+us_death = by(us_death, [:state, :country], cols(names(us_death)[3:end], "sum"))
+
 confirmed = load(confirmed_path) |> DataFrame! |> x -> rename!(x, Dict(Symbol("Province/State") => :state, Symbol("Country/Region") => :country))
+rename!(us_confirmed, names(confirmed))
+confirmed = [confirmed; us_confirmed]
+
+death = load(death_path) |> DataFrame! |> x -> rename!(x, Dict(Symbol("Province/State") => :state, Symbol("Country/Region") => :country))
+rename!(us_death, names(death))
+death = [death; us_death]
+
 recovered = load(recovered_path) |> DataFrame! |> x -> rename!(x, Dict(Symbol("Province/State") => :state, Symbol("Country/Region") => :country))
-us_confirmed = load(us_confirmed_path) |> DataFrame! |> x -> rename!(x, Dict(Symbol("Province_State") => :state, Symbol("Country_Region") => :country)) |> x -> x[]
-us_death = load(us_death_path) |> DataFrame! |> x -> rename!(x, Dict(Symbol("Province_State", Symbol("Country_Region") => :country) => :state))
+# create 0s for US states recovered
+n_col = ncol(recovered)
+empty_row =  ["US" 0.0 0.0 reshape([0 for i in 5:n_col], 1, :)]
+for state in unique(us_confirmed.state)
+    global recovered
+    push!(recovered, [state empty_row])
+end
 
 # distinguishing states with territories via "Mainland"
-for data_set in [death, confirmed]
+for data_set in [death, confirmed, recovered, ]
     for country in ["United Kingdom", "Netherlands", "France", "Denmark"]
         data_set[(data_set.state .== "") .& (data_set.country .== country), :state] .= "Mainland"
     end
 end
 
 # add a row for total of countries with states
-state_countries = confirmed[confirmed.state .!= "", :country] |> unique
-for country in state_countries
-    col_values = ["" country 0.0 0.0 ([sum(col) for col in eachcol(confirmed[confirmed.country .== country,:5:end])] |>
-                    transpose)] |> DataFrame |> x -> rename!(x, names(confirmed))
-    global confirmed = [confirmed; col_values]
-    col_values = ["" country 0.0 0.0 ([sum(col) for col in eachcol(death[death.country .== country,:5:end])] |>
-                    transpose)] |> DataFrame |> x -> rename!(x, names(death))
-    global death = [death; col_values]
+println("CSSE: adding rows for total of countries with states")
+state_countries = confirmed[confirmed.state .!= "", :country] |> unique |> x -> x[x .!= "US"]
+function country_total(data)
+    for country in state_countries
+        col_values = ["" country 0.0 0.0 ([sum(col) for col in eachcol(data[data.country .== country,5:end])] |>
+                        transpose)] |> DataFrame |> x -> rename!(x, names(data))
+        data = [data; col_values]
+    end
+    return data
 end
+confirmed = country_total(confirmed)
+death = country_total(death)
+recovered = country_total(recovered)
 
-# add US states
-
+# rename states to be in one column
 suffix(state, country) = state == "" ? country : country * ": " * state
 for data_set in [death, confirmed]
     data_set[!, :country] = suffix.(data_set.state, data_set.country)
@@ -86,9 +116,11 @@ function country_data(country)
 end
 
 all_countries = death.country |> unique |> sort
+println("CSSE: processing data")
 all_country_data = vcat([country_data(country) for country in all_countries]...)
 
 # adding world
+println("CSSE: adding world")
 no_states = all_country_data[.!occursin.(":", all_country_data.country), :]
 no_states = by(no_states, :date,
     confirmed = :confirmed => sum,
@@ -104,8 +136,6 @@ no_states[!, :days_since_10] = 1:nrow(no_states)
 no_states[!, :country] .= "World"
 no_states = no_states[!, names(all_country_data)]
 all_country_data = [all_country_data; no_states]
-
-# adding US states
-
-
+println("CSSE: complete")
+# end module
 end
