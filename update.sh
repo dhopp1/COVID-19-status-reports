@@ -1,5 +1,5 @@
 git -C COVID-19 pull &&
-julia etl/ETL.jl &&
+cd etl/ && julia ETL.jl && cd .. &&
 git add . &&
 git commit -m "Daily update" &&
 git push origin master
