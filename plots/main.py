@@ -23,6 +23,8 @@ import numpy as np
 import pandas as pd
 import datetime
 
+import source.aesthetics as aesthetics
+
 
 # data read
 data = pd.read_csv("plots/data/transformed_data.csv", parse_dates=["date"])
@@ -284,8 +286,8 @@ def add_plot(plot_function, metric, title, y_axis_type, name=None):
     p.xaxis.major_label_text_font_size = axis_text_font_size
     p.yaxis.major_label_text_font_size = axis_text_font_size
     p.title.text_font_size = title_text_font_size
-    plot_function(source, p, "#21618C", select1.value, metric, 0.25, name)
-    plot_function(source2, p, "#ff4d4d", select1.value, metric, -0.25, name)
+    plot_function(source, p, aesthetics.country_1_color, select1.value, metric, 0.25, name)
+    plot_function(source2, p, aesthetics.country_2_color, select1.value, metric, -0.25, name)
     p.xaxis.major_label_orientation = 3.14 / 4
     p.renderers.extend(
         [Span(location=0, dimension="width", line_color="black", line_width=1)]
@@ -780,20 +782,20 @@ for metric, title in metrics.items():
             source,
             p,
             metric,
-            actual_color="#21618C",
-            fc_color="#2773a5",
-            color_80="#5aa6d8",
-            color_95="#acd2ec",
+            actual_color=aesthetics.country_1_color,
+            fc_color=aesthetics.country_1_fc_color,
+            color_80=aesthetics.country_1_80_color,
+            color_95=aesthetics.country_1_95_color,
         )
         p = add_forecast_plot(
             sc2,
             source2,
             p,
             metric,
-            actual_color="#ff4d4d",
-            fc_color="#ff6666",
-            color_80="#ff9999",
-            color_95="#ffcccc",
+            actual_color=aesthetics.country_2_color,
+            fc_color=aesthetics.country_2_fc_color,
+            color_80=aesthetics.country_2_80_color,
+            color_95=aesthetics.country_2_95_color,
         )
         plots["forecast_" + metric + axis_type] = p
 

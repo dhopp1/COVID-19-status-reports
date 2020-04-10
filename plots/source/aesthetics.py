@@ -1,0 +1,9 @@
+# plot color
+country_1_color = "#21618C"
+country_1_fc_color = "#2773a5"
+country_1_80_color = "#5aa6d8"
+country_1_95_color = "#acd2ec"
+country_2_color = "#ff4d4d"
+country_2_fc_color = "#ff6666"
+country_2_80_color = "#ff9999"
+country_2_95_color = "#ffcccc"
