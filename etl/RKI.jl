@@ -60,7 +60,7 @@ if !isempty(json_array)
     select!(json_df, [:date, :country, :new_cases, :deaths])
     json_df[!, :date] = Dates.unix2datetime.(json_df.date ./ 1000) .|> Dates.Date
     historic = [historic; json_df]
-    CSV.write("../data/rki_data.csv", historic)
+    CSV.write("../plots/data/rki_data.csv", historic)
 end
 
 # converting to all_country_data format
