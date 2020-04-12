@@ -102,7 +102,7 @@ def gen_table(country1, country2):
             max(df1.date).strftime("%Y-%m-%d"),
             "{:,.0f}".format(max(df1.confirmed)),
             "{:,.0f}".format(max(df1.recovered)),
-            "{:,.0f}".format(max(df1.active_cases)),
+            "{:,.0f}".format(df1.active_cases[len(df1)-1]),
             "{:,.0f}".format(max(df1.deaths)),
             "{:.2f}".format(df1.death_rate[len(df1) - 1] * 100) + "%",
             "{:,.0f}".format(df1.new_cases[len(df1) - 1]),
@@ -116,7 +116,7 @@ def gen_table(country1, country2):
             max(df2.date).strftime("%Y-%m-%d"),
             "{:,.0f}".format(max(df2.confirmed)),
             "{:,.0f}".format(max(df2.recovered)),
-            "{:,.0f}".format(max(df2.active_cases)),
+            "{:,.0f}".format(df2.active_cases[len(df2)-1]),
             "{:,.0f}".format(max(df2.deaths)),
             "{:.2f}".format(df2.death_rate[len(df2) - 1] * 100) + "%",
             "{:,.0f}".format(df2.new_cases[len(df2) - 1]),
@@ -342,6 +342,7 @@ def add_forecast_plot(
                 (f"Actual", "@" + metric + "{,}"),
             ],
             names=["actual"],
+            mode=hover_mode
         ),
         HoverTool(
             tooltips=[
@@ -350,6 +351,7 @@ def add_forecast_plot(
                 (f"Forecast", "@point_forecast{,}"),
             ],
             names=["forecast"],
+            mode=hover_mode
         ),
         HoverTool(
             tooltips=[
@@ -358,6 +360,7 @@ def add_forecast_plot(
                 ("Lower 80% Confidence Interval", "@lo_80{,}"),
             ],
             names=["lo_80"],
+            mode="mouse"
         ),
         HoverTool(
             tooltips=[
@@ -366,6 +369,7 @@ def add_forecast_plot(
                 ("Upper 80% Confidence Interval", "@hi_80{,}"),
             ],
             names=["hi_80"],
+            mode="mouse"
         ),
         HoverTool(
             tooltips=[
@@ -374,6 +378,7 @@ def add_forecast_plot(
                 ("Lower 95% Confidence Interval", "@lo_95{,}"),
             ],
             names=["lo_95"],
+            mode="mouse"
         ),
         HoverTool(
             tooltips=[
@@ -382,6 +387,7 @@ def add_forecast_plot(
                 ("Upper 95% Confidence Interval", "@hi_95{,}"),
             ],
             names=["hi_95"],
+            mode="mouse"
         ),
     )
     p.xaxis.major_label_text_font_size = axis_text_font_size
@@ -448,12 +454,9 @@ def date_range_update_plot(attr, old, new):
         :,
     ].reset_index(drop=True)
     for p in [
-        "confirmedbar",
-        "deathsbar",
-        "smooth_new_casesbar",
-        "smooth_new_deathsbar",
-        "smooth_accel_casesbar",
-        "smooth_accel_deathsbar",
+        "metricbar",
+        "smooth_1st_derbar",
+        "smooth_2nd_derbar",
     ]:
         for glyph in plots[p].select({"name": "bar"}):
             if x_col.value == "Date":
@@ -658,6 +661,7 @@ metric_dropdown.on_change("value", metric_update)
 
 
 # plots
+hover_mode = "mouse"
 plots = {}
 metrics = {
     "metric": "Cumulative",
@@ -670,37 +674,7 @@ for metric, title in metrics.items():
         if axis_type != "bar":
             # log dotted lines
             if (metric_dropdown.value in ["Cases", "Deaths"]) & (axis_type == "log"):
-                if metric_dropdown.value == "Cases":
-                    label = "Days Since 100th Case"
-                    value = "@days_since_100"
-                elif metric.dropdown.value == "Deaths":
-                    label = "Days Since 10th Death"
-                    value = "@days_since_10"
                 p = add_plot(line_plot, metric, title, axis_type, "first")
-                p.line(
-                    "x_col",
-                    "double_3",
-                    source=source,
-                    color="grey",
-                    line_dash="dashed",
-                    name="double_3",
-                )
-                p.line(
-                    "x_col",
-                    "double_5",
-                    source=source,
-                    color="grey",
-                    line_dash="dashed",
-                    name="double_5",
-                )
-                p.line(
-                    "x_col",
-                    "double_10",
-                    source=source,
-                    color="grey",
-                    line_dash="dashed",
-                    name="double_10",
-                )
                 p.add_tools(
                     HoverTool(
                         tooltips=[
@@ -709,29 +683,61 @@ for metric, title in metrics.items():
                             (title, "@" + metric + "{,}"),
                         ],
                         names=["first"],
-                    ),
-                    HoverTool(
-                        tooltips=[
-                            ("Country/Region", "@country"),
-                            ("Double every 3 days", "@double_3{,}"),
-                        ],
-                        names=["double_3"],
-                    ),
-                    HoverTool(
-                        tooltips=[
-                            ("Country/Region", "@country"),
-                            ("Double every 5 days", "@double_5{,}"),
-                        ],
-                        names=["double_5"],
-                    ),
-                    HoverTool(
-                        tooltips=[
-                            ("Country/Region", "@country"),
-                            ("Double every 10 days", "@double_10{,}"),
-                        ],
-                        names=["double_10"],
+                        mode=hover_mode
                     ),
                 )
+                # only add doubling lines if it's cases or deaths
+                if metric == "metric":
+                    p.line(
+                        "x_col",
+                        "double_3",
+                        source=source,
+                        color="grey",
+                        line_dash="dashed",
+                        name="double_3",
+                    )
+                    p.line(
+                        "x_col",
+                        "double_5",
+                        source=source,
+                        color="grey",
+                        line_dash="dashed",
+                        name="double_5",
+                    )
+                    p.line(
+                        "x_col",
+                        "double_10",
+                        source=source,
+                        color="grey",
+                        line_dash="dashed",
+                        name="double_10",
+                    )
+                    p.add_tools(
+                        HoverTool(
+                            tooltips=[
+                                ("Country/Region", "@country"),
+                                ("Double every 3 days", "@double_3{,}"),
+                            ],
+                            names=["double_3"],
+                            mode="mouse"
+                        ),
+                        HoverTool(
+                            tooltips=[
+                                ("Country/Region", "@country"),
+                                ("Double every 5 days", "@double_5{,}"),
+                            ],
+                            names=["double_5"],
+                            mode="mouse"
+                        ),
+                        HoverTool(
+                            tooltips=[
+                                ("Country/Region", "@country"),
+                                ("Double every 10 days", "@double_10{,}"),
+                            ],
+                            names=["double_10"],
+                            mode="mouse"
+                        ),
+                    )
                 plots[metric + axis_type] = p
             else:
                 p = add_plot(line_plot, metric, title, axis_type, "first")
@@ -743,6 +749,7 @@ for metric, title in metrics.items():
                             (title, "@" + metric + "{,}"),
                         ],
                         names=["first"],
+                        mode=hover_mode
                     )
                 )
                 plots[metric + axis_type] = p
@@ -756,6 +763,7 @@ for metric, title in metrics.items():
                         (title, "@" + metric + "{,}"),
                     ],
                     names=["bar"],
+                    mode=hover_mode
                 )
             )
             plots[metric + axis_type] = p
@@ -795,7 +803,7 @@ for metric, title in metrics.items():
 
 # log-linear tabs
 line_div_text = """
-<h4>Explanation: README [3]</h4>
+<h4>Explanation: README [4]</h4>
 """
 
 # initialize plot names
@@ -808,7 +816,7 @@ linear_tab_layout = column(
     row(plots["smooth_2nd_derlinear"]),
 )
 log_div_text = """
-<h4>Explanation: README [4]</h4>
+<h4>Explanation: README [5]</h4>
 """
 log_tab_layout = column(
     row(Div(text=log_div_text, width=600)),
@@ -823,7 +831,7 @@ bar_tab_layout = column(
     row(plots["smooth_2nd_derbar"]),
 )
 forecast_text = """
-<h4>Explanation: README [5]</h4>
+<h4>Explanation: README [6]</h4>
 """
 forecast_div = Div(text=forecast_text, width=600)
 forecast_tab_layout = column(
@@ -836,7 +844,7 @@ log_tab = Panel(child=log_tab_layout, title="Log Scale")
 bar_tab = Panel(child=bar_tab_layout, title="Bar Graphs")
 forecast_tab = Panel(child=forecast_tab_layout, title="Forecasts")
 accel_div_text = """
-<h4>Explanation: README [6]</h4>
+<h4>Explanation: README [7]</h4>
 """
 accel_div = Div(text=accel_div_text, width=600)
 acceleration_tab = Panel(
@@ -845,11 +853,11 @@ acceleration_tab = Panel(
 notes_text = """
 <h4>About</h4>
 <p>
-This page uses data from <a href="https://github.com/CSSEGISandData/COVID-19">Johns Hopkins CSSE</a> and the Robert Koch Institute via <a href="https://npgeo-corona-npgeo-de.hub.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0">this</a> api (for German Bundesländer data) to create charts on the status of COVID-19 cases and deaths around the world. It is updated once a day around 10:00am CET. The code used to make this site is hosted <a href="https://github.com/dhopp1/COVID-19-status-reports">here</a>. Country groupings such as North America come from Wikipedia, but to see specifically which countries are included in each group check the <i>country_groups.csv</i> file <a href="https://github.com/dhopp1/COVID-19-status-reports/tree/master/plots/data">here</a>.
+This page uses data from <a href="https://github.com/CSSEGISandData/COVID-19">Johns Hopkins CSSE</a> and the Robert Koch Institute via <a href="https://npgeo-corona-npgeo-de.hub.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0">this</a> api (for German Bundesländer data) to create charts on the status of COVID-19 cases and deaths around the world. It is updated once a day around 10:00am CET. The code used to make this site is hosted <a href="https://github.com/dhopp1/COVID-19-status-reports">here</a>. Country groupings such as North America come from Wikipedia, but to see specifically which countries are included in each group check the <i>country_groups.csv</i> file <a href="https://github.com/dhopp1/COVID-19-status-reports/tree/master/plots/data">here</a>. Please note Robert Koch Institute data is continually revised backwards, so numbers will retroactively rise as time goes on and numbers shown here won't correspond exactly to those found <a href="https://experience.arcgis.com/experience/478220a4c454480e823b17327b2bf1d4">here</a>.
 <br>
 </p>
 <p style="font-size:14px">
-<strong>*Note:</strong> if you choose two countries with a large discrepency in case load, e.g. US and Cuba, the smaller country's curves will probably be invisible due to the scale. Set the second country to one with a more similar caseload to the smaller country, or set the second country to "None" to see the curve more clearly. Comparing two countries with bar plots may result in overlapping bars, so the "Linear Scale" tab for lines is a better option for this case.
+<strong>*Note:</strong> if you choose two countries with a large discrepency in case load, e.g. US and Cuba, the smaller country's curves will probably be invisible due to the scale. Set the second country to one with a more similar caseload to the smaller country, or set the second country to "None" to see the curve more clearly. Comparing two countries with bar plots may result in overlapping bars, so the "Linear Scale" tab for lines is a better option for this case; alternatively choosing an x axis other than date will also cause the bars to offset and be more easily comparable.
 </p>
 <h4>A note on testing</h4>
 <p>
@@ -861,19 +869,22 @@ All this site does is give access to the data produced at the sources listed in 
 <strong>[1] X Axis:</strong> The units of the x (horizontal) axis. Days since 100th case are the number of days since the 100th case of the country were recorded. It is useful for comparing countries at different stages in their epidemics by giving them a common x axis. Days since 10th death is the same idea, but useful when looking at death rates.
 </p>
 <p>
-<strong>[2] Moving Average Smoothing:</strong> This filter refers to how much smoothing occurs in the new cases/deaths and acceleration cases/deaths plots. Countries can report very different numbers from day to day due to many factors like weekends, accounting errors, etc., so this dropdown attempts to smooth that volatility a little to see a better idea of the trend. 3 means that each day's value will be replaced with the average of 3 days' values, and so on. So a higher number means more smoothing.
+<strong>[2] Metric:</strong> This filter will change the metric (y-axis) the graphs display. Active cases = cases - deaths - recovered cases. US and German states lack recovered data, so their active cases are just cases - deaths.
 </p>
 <p>
-<strong>[3] Bar Graphs/Linear Scale:</strong> Confirmed cases and deaths are cumulative numbers, so the full number of reported cases and deaths up to a certain day. New cases/deaths are the number of cases/deaths reported on that day alone. Acceleration of cases/deaths is the rate of change of new cases/deaths. A higher acceleration means not only are cases growing, but they're growing at an <em>increasing</em> rate. A negative acceleration is good and means that cases are still growing, but not as quickly.
+<strong>[3] Moving Average Smoothing:</strong> This filter refers to how much smoothing occurs in the new cases/deaths and acceleration cases/deaths plots. Countries can report very different numbers from day to day due to many factors like weekends, accounting errors, etc., so this dropdown attempts to smooth that volatility a little to see a better idea of the trend. 3 means that each day's value will be replaced with the average of 3 days' values, and so on. So a higher number means more smoothing.
 </p>
 <p>
-<strong>[4]: Log Scale </strong> See an explanation of a logarithmic scale <a href="https://en.wikipedia.org/wiki/Logarithmic_scale">here</a>. The dotted lines on the confirmed cases and deaths graphs show the number of cases there would be if they doubled every 3, 5, or 10 days for country 1. They start from the day of the 100th confirmed case and 10th death for cases and deaths respectively. As a result they are interpreted most easily when the X axis is set to those respective metrics. Slopes rather than absolute levels should be used for comparison.
+<strong>[4] Bar Graphs/Linear Scale:</strong> Cumulative numbers mean all of the metric (e.g. cases, deaths, etc.) reported up to a certain day. New daily metric are the number of the metric reported/calculated for that day alone. Acceleration is the rate of change of the metric. A higher acceleration means not only are cases e.g. growing, but they're growing at an <em>increasing</em> rate. A negative acceleration is good (except for recovered cases) and means that cases e.g. are still growing, but not as quickly.
 </p>
 <p>
-<strong>[5]: Forecasts</strong> Forecast numbers and plots are created using <a href="https://otexts.com/fpp2/holt.html">Holt's linear trend method with dampening</a>. This is a linear model, which means it probably significantly underestimates countries that are experiencing the acceleration phase of their epidemics. It will probably be better at forecasting countries at a more mature phase, such as Italy or Spain. Important to note is that this is just one of many methods that can forecast the data, and I have not spent a significant amount of time validating it. I may spend more time in the future investigating and adding better forecasting methods. Plots display the point forecast and 80% prediction interval (darker shading), and 95% prediction interval (lighter shading).
+<strong>[5]: Log Scale </strong> See an explanation of a logarithmic scale <a href="https://en.wikipedia.org/wiki/Logarithmic_scale">here</a>. The dotted lines show the number of cases/deaths there would be if they doubled every 3, 5, or 10 days for country 1 (they are only visible for the "Cases" and "Deaths" metrics). They start from the day of the 100th confirmed case and 10th death for cases and deaths respectively. As a result they are interpreted most easily when the X axis is set to those respective metrics. Slopes rather than absolute levels should be used for comparison.
 </p>
 <p>
-<strong>[6]: Overview Table</strong> The "Acceleration of Last 5 Days" column is calculated by the average second derivative over the last 5 days / number of cases 5 days ago. It doesn't have much intrinsic meaning but is rather a more comparable/relative measure between countries of how fast new cases are accelerating. The table is scrollable and sortable. Highlight a row by clicking or tapping for reference when scrolling horizontally.
+<strong>[6]: Forecasts</strong> Forecast numbers and plots are created using <a href="https://otexts.com/fpp2/holt.html">Holt's linear trend method with dampening</a>. This is a linear model, which means it probably significantly underestimates countries that are experiencing the acceleration phase of their epidemics. It will probably be better at forecasting countries at a more mature phase, such as Italy or Spain. Important to note is that this is just one of many methods that can forecast the data, and I have not spent a significant amount of time validating it. I may spend more time in the future investigating and adding better forecasting methods. Plots display the point forecast and 80% prediction interval (darker shading), and 95% prediction interval (lighter shading).
+</p>
+<p>
+<strong>[7]: Overview Table</strong> The "Acceleration of Last 5 Days" column is calculated by the average second derivative over the last 5 days / number of cases 5 days ago. It doesn't have much intrinsic meaning but is rather a more comparable/relative measure between countries of how fast new cases are accelerating. The table is scrollable and sortable. Highlight a row by clicking or tapping for reference when scrolling horizontally.
 </p>
 """
 notes = Div(text=notes_text, width=600)
