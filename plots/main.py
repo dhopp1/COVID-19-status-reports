@@ -181,6 +181,18 @@ columns = [
         width=180,
     ),
     TableColumn(
+        field="Recovered Cases",
+        title="Recovered Cases",
+        formatter=HTMLTemplateFormatter(template=templatenormal),
+        width=180,
+    ),
+    TableColumn(
+        field="Active Cases",
+        title="Active Cases",
+        formatter=HTMLTemplateFormatter(template=templatenormal),
+        width=180,
+    ),
+    TableColumn(
         field="Deaths",
         title="Deaths",
         formatter=HTMLTemplateFormatter(template=templatenormal),
