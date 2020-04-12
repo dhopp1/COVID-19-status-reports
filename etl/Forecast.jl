@@ -34,6 +34,12 @@ function gen_forecast(df)
                 fc = [fc;
                     r_forecast(tmp.date, tmp.deaths; country=country, metric="deaths", r_forecast_function = z -> R"holt"(z, h=20, damped=true), time_function = Dates.Day, h = 20)
                 ]
+                fc = [fc;
+                    r_forecast(tmp.date, tmp.deaths; country=country, metric="recovered", r_forecast_function = z -> R"holt"(z, h=20, damped=true), time_function = Dates.Day, h = 20)
+                ]
+                fc = [fc;
+                    r_forecast(tmp.date, tmp.deaths; country=country, metric="active_cases", r_forecast_function = z -> R"holt"(z, h=20, damped=true), time_function = Dates.Day, h = 20)
+                ]
                 counter += 1
             else
                 fc = [fc;
@@ -41,6 +47,12 @@ function gen_forecast(df)
                 ]
                 fc = [fc;
                     r_forecast(tmp.date, tmp.deaths; country=country, metric="deaths", r_forecast_function = z -> R"holt"(z, h=20, damped=true), time_function = Dates.Day, h = 20)
+                ]
+                fc = [fc;
+                    r_forecast(tmp.date, tmp.deaths; country=country, metric="recovered", r_forecast_function = z -> R"holt"(z, h=20, damped=true), time_function = Dates.Day, h = 20)
+                ]
+                fc = [fc;
+                    r_forecast(tmp.date, tmp.deaths; country=country, metric="active_cases", r_forecast_function = z -> R"holt"(z, h=20, damped=true), time_function = Dates.Day, h = 20)
                 ]
             end
         end
