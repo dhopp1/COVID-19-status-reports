@@ -39,7 +39,9 @@ data["smooth_2nd_der"] = data.acceleration_cases
 data["double_3"] = data.double_3_cases
 data["double_5"] = data.double_5_cases
 data["double_10"] = data.double_10_cases
-data["acceleration_recoveries"] = 0
+data["new_active_cases"] = data.new_cases - data.new_deaths - data.new_recoveries
+data["acceleration_active_cases"] = data.new_active_cases.diff(1)
+data["acceleration_recoveries"] = data.new_recoveries.diff(1)
 data = data.sort_values(["country", "date"]).reset_index(drop=True)
 data.days_since_100 = data.days_since_100.replace(0, np.nan)
 data.days_since_10 = data.days_since_10.replace(0, np.nan)
@@ -65,8 +67,8 @@ dates.sort()
 
 metric_options = ["Cases", "Deaths", "Active Cases", "Recovered Cases"]
 metric_options_count = {"Cases":"confirmed", "Deaths":"deaths", "Active Cases":"active_cases", "Recovered Cases":"recovered"}
-metric_options_1st_der = {"Cases":"new_cases", "Deaths":"new_deaths", "Active Cases":"new_cases", "Recovered Cases":"new_recoveries"}
-metric_options_2nd_der = {"Cases":"acceleration_cases", "Deaths":"acceleration_deaths", "Active Cases":"acceleration_cases", "Recovered Cases":"acceleration_recoveries"}
+metric_options_1st_der = {"Cases":"new_cases", "Deaths":"new_deaths", "Active Cases":"new_active_cases", "Recovered Cases":"new_recoveries"}
+metric_options_2nd_der = {"Cases":"acceleration_cases", "Deaths":"acceleration_deaths", "Active Cases":"acceleration_active_cases", "Recovered Cases":"acceleration_recoveries"}
 metric_forecast_name = {"Cases":"cases", "Deaths":"deaths", "Active Cases":"active_cases", "Recovered Cases":"recovered"}
 
 # data for data table
