@@ -1,3 +1,4 @@
+from bokeh.models.annotations import Title
 from bokeh.plotting import ColumnDataSource, curdoc, figure
 from bokeh.io import output_file, show
 from bokeh.layouts import column, row, gridplot, Spacer
@@ -38,6 +39,7 @@ data["smooth_2nd_der"] = data.acceleration_cases
 data["double_3"] = data.double_3_cases
 data["double_5"] = data.double_5_cases
 data["double_10"] = data.double_10_cases
+data["acceleration_recoveries"] = 0
 data = data.sort_values(["country", "date"]).reset_index(drop=True)
 data.days_since_100 = data.days_since_100.replace(0, np.nan)
 data.days_since_10 = data.days_since_10.replace(0, np.nan)
@@ -64,7 +66,7 @@ dates.sort()
 metric_options = ["Cases", "Deaths", "Active Cases", "Recovered Cases"]
 metric_options_count = {"Cases":"confirmed", "Deaths":"deaths", "Active Cases":"active_cases", "Recovered Cases":"recovered"}
 metric_options_1st_der = {"Cases":"new_cases", "Deaths":"new_deaths", "Active Cases":"new_cases", "Recovered Cases":"new_recoveries"}
-metric_options_2nd_der = {"Cases":"acceleration_cases", "Deaths":"acceleration_deaths", "Active Cases":"acceleration_cases", "Recovered Cases":"new_recoveries"}
+metric_options_2nd_der = {"Cases":"acceleration_cases", "Deaths":"acceleration_deaths", "Active Cases":"acceleration_cases", "Recovered Cases":"acceleration_recoveries"}
 metric_forecast_name = {"Cases":"cases", "Deaths":"deaths", "Active Cases":"active_cases", "Recovered Cases":"recovered"}
 
 # data for data table
@@ -491,12 +493,9 @@ def x_axis_update_plot(attr, old, new):
         :,
     ].reset_index(drop=True)
     for p in [
-        "confirmedbar",
-        "deathsbar",
-        "smooth_new_casesbar",
-        "smooth_new_deathsbar",
-        "smooth_accel_casesbar",
-        "smooth_accel_deathsbar",
+        "metricbar",
+        "smooth_1st_derbar",
+        "smooth_2nd_derbar"
     ]:
         for glyph in plots[p].select({"name": "bar"}):
             if new == "Date":
@@ -542,6 +541,33 @@ def smoothing_helper(smoothing_days):
 def smoothing_update(attr, old, new):
     smoothing_helper(new)
 
+def rename_plots(metric):
+    plots["smooth_2nd_derlinear"].title.text = metric + " Acceleration"
+    plots["metriclog"].title.text = "Cumulative " + metric
+    for p in [
+            "metriclinear",
+            "smooth_1st_derlinear",
+            "smooth_2nd_derlinear"
+            "metriclog",
+            "smooth_1st_derlog",
+            "smooth_2nd_derlog",
+            "metricbar",
+            "smooth_1st_derbar",
+            "smooth_2nd_derbar",
+            "forecast_metriclinear",
+            "forecast_metriclog"
+        ]:
+            if p in ["metriclinear", "metriclog", "metricbar"]:
+                plots[p].title.text = "Cumulative " + metric 
+            elif p in ["smooth_1st_derlinear", "smooth_1st_derlog", "smooth_1st_derbar"]:
+                plots[p].title.text = "New Daily " + metric
+            elif p in ["smooth_2nd_derlinear", "smooth_2nd_derlog", "smooth_2nd_derbar"]:
+                plots[p].title.text = metric + " Acceleration"
+            elif p == "forecast_metriclinear":
+                plots[p].title.text = "Forecast " + metric + " (linear scale)"
+            elif p == "forecast_metriclog":
+                plots[p].title.text = "Forecast " + metric + " (log scale)"
+
 def metric_update(attr, old, new):
     col_count = metric_options_count[new]
     col_1st_der = metric_options_1st_der[new]
@@ -580,6 +606,7 @@ def metric_update(attr, old, new):
         :,
     ].reset_index(drop=True)
 
+    rename_plots(metric_dropdown.value)
     smoothing_helper(smoothing.value)
 
 
@@ -633,9 +660,9 @@ metric_dropdown.on_change("value", metric_update)
 # plots
 plots = {}
 metrics = {
-    "metric": "Metric Title",
-    "smooth_1st_der": "Metric 1st der title",
-    "smooth_2nd_der": "Metric 2nd der title"
+    "metric": "Cumulative",
+    "smooth_1st_der": "New per Day",
+    "smooth_2nd_der": "Acceleration"
 }
 axis_types = ["linear", "log", "bar"]
 for metric, title in metrics.items():
@@ -770,6 +797,10 @@ for metric, title in metrics.items():
 line_div_text = """
 <h4>Explanation: README [3]</h4>
 """
+
+# initialize plot names
+rename_plots("Cases")
+
 linear_tab_layout = column(
     row(Div(text=line_div_text, width=600)),
     row(plots["metriclinear"]),
