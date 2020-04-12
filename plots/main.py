@@ -241,7 +241,7 @@ fc_source2 = ColumnDataSource(
 # defining plots
 def line_plot(source, p, color, country, metric, dodge_value=None, name=None):
     """data = ColumnDataSource, country = country name, p = bokeh figure"""
-    p.line("x_col", metric, source=source, color=color, name=name)
+    p.line("x_col", metric, source=source, color=color, name=name, width=2)
     return p
 
 
@@ -270,8 +270,8 @@ def bar_plot(source, p, color, country, metric, dodge_value, name=None):
 def forecast_plot(
     fc_source, data_source, p, actual_color, fc_color, metric, color_80, color_95
 ):
-    p.line("date", metric, source=data_source, color=actual_color, name="actual")
-    p.line("date", "point_forecast", source=fc_source, color=fc_color, name="forecast")
+    p.line("date", metric, source=data_source, color=actual_color, name="actual", width=2)
+    p.line("date", "point_forecast", source=fc_source, color=fc_color, name="forecast", width=2)
     p.line(
         "date", "lo_80", source=fc_source, color=fc_color, name="lo_80", line_alpha=0
     )
