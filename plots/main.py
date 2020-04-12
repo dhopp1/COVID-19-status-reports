@@ -30,10 +30,14 @@ import source.aesthetics as aesthetics
 data = pd.read_csv("plots/data/transformed_data.csv", parse_dates=["date"])
 data["date_string"] = data.date.dt.strftime("%Y-%0m-%0d")
 data["x_col"] = data.date
-data["smooth_new_cases"] = data.new_cases
-data["smooth_new_deaths"] = data.new_deaths
-data["smooth_accel_cases"] = data.acceleration_cases
-data["smooth_accel_deaths"] = data.acceleration_deaths
+data["metric"] = data.confirmed
+data["metric_1st_der"] = data.new_cases
+data["metric_2nd_der"] = data.acceleration_cases
+data["smooth_1st_der"] = data.new_cases
+data["smooth_2nd_der"] = data.acceleration_cases
+data["double_3"] = data.double_3_cases
+data["double_5"] = data.double_5_cases
+data["double_10"] = data.double_10_cases
 data = data.sort_values(["country", "date"]).reset_index(drop=True)
 data.days_since_100 = data.days_since_100.replace(0, np.nan)
 data.days_since_10 = data.days_since_10.replace(0, np.nan)
@@ -56,6 +60,12 @@ countries = ["World", "None"] + groups + ["---"] + countries
 
 dates = list(data.date.unique())
 dates.sort()
+
+metric_options = ["Cases", "Deaths", "Active Cases", "Recovered Cases"]
+metric_options_count = {"Cases":"confirmed", "Deaths":"deaths", "Active Cases":"active_cases", "Recovered Cases":"recovered"}
+metric_options_1st_der = {"Cases":"new_cases", "Deaths":"new_deaths", "Active Cases":"new_cases", "Recovered Cases":"new_recoveries"}
+metric_options_2nd_der = {"Cases":"acceleration_cases", "Deaths":"acceleration_deaths", "Active Cases":"acceleration_cases", "Recovered Cases":"new_recoveries"}
+metric_forecast_name = {"Cases":"cases", "Deaths":"deaths", "Active Cases":"active_cases", "Recovered Cases":"recovered"}
 
 # data for data table
 templatebold = """
@@ -218,17 +228,11 @@ acceleration_table = DataTable(
 # other data sources
 source = ColumnDataSource(data.loc[data.country == "World", :])
 source2 = ColumnDataSource(data.loc[data.country == "None", :])
-fc_source_cases = ColumnDataSource(
+fc_source = ColumnDataSource(
     forecasts.loc[(forecasts.country == "World") & (forecasts.metric == "cases"), :]
 )
-fc_source_deaths = ColumnDataSource(
-    forecasts.loc[(forecasts.country == "World") & (forecasts.metric == "deaths"), :]
-)
-fc_source_cases2 = ColumnDataSource(
+fc_source2 = ColumnDataSource(
     forecasts.loc[(forecasts.country == "None") & (forecasts.metric == "cases"), :]
-)
-fc_source_deaths2 = ColumnDataSource(
-    forecasts.loc[(forecasts.country == "None") & (forecasts.metric == "deaths"), :]
 )
 
 
@@ -318,10 +322,6 @@ def add_plot(plot_function, metric, title, y_axis_type, name=None):
 def add_forecast_plot(
     fc_source, data_source, p, metric, actual_color, fc_color, color_80, color_95
 ):
-    if metric == "confirmed":
-        metric_word = "Cases"
-    elif metric == "deaths":
-        metric_word = "Deaths"
     p = forecast_plot(
         fc_source=fc_source,
         data_source=data_source,
@@ -337,7 +337,7 @@ def add_forecast_plot(
             tooltips=[
                 ("Country/Region", "@country"),
                 ("Date", "@date_string"),
-                (f"{metric_word} Actual", "@" + metric + "{,}"),
+                (f"Actual", "@" + metric + "{,}"),
             ],
             names=["actual"],
         ),
@@ -345,7 +345,7 @@ def add_forecast_plot(
             tooltips=[
                 ("Country/Region", "@country"),
                 ("Date", "@date_string"),
-                (f"{metric_word} Forecast", "@point_forecast{,}"),
+                (f"Forecast", "@point_forecast{,}"),
             ],
             names=["forecast"],
         ),
@@ -401,18 +401,9 @@ def country_1_update_plot(attr, old, new):
         & (data.country == new),
         :,
     ].reset_index(drop=True)
-    fc_source_cases.data = forecasts.loc[
+    fc_source.data = forecasts.loc[
         (forecasts.country == new)
-        & (forecasts.metric == "cases")
-        & (
-            forecasts.date
-            >= datetime.datetime.fromtimestamp(date_range.value[0] / 1000)
-        ),
-        :,
-    ].reset_index(drop=True)
-    fc_source_deaths.data = forecasts.loc[
-        (forecasts.country == new)
-        & (forecasts.metric == "deaths")
+        & (forecasts.metric == metric_forecast_name[metric_dropdown.value])
         & (
             forecasts.date
             >= datetime.datetime.fromtimestamp(date_range.value[0] / 1000)
@@ -429,18 +420,9 @@ def country_2_update_plot(attr, old, new):
         & (data.country == new),
         :,
     ].reset_index(drop=True)
-    fc_source_cases2.data = forecasts.loc[
+    fc_source2.data = forecasts.loc[
         (forecasts.country == new)
-        & (forecasts.metric == "cases")
-        & (
-            forecasts.date
-            >= datetime.datetime.fromtimestamp(date_range.value[0] / 1000)
-        ),
-        :,
-    ].reset_index(drop=True)
-    fc_source_deaths2.data = forecasts.loc[
-        (forecasts.country == new)
-        & (forecasts.metric == "deaths")
+        & (forecasts.metric == metric_forecast_name[metric_dropdown.value])
         & (
             forecasts.date
             >= datetime.datetime.fromtimestamp(date_range.value[0] / 1000)
@@ -523,45 +505,27 @@ def x_axis_update_plot(attr, old, new):
                 glyph.glyph.width = change_width(source.data, source2.data, False)
 
 
-def smoothing_update(attr, old, new):
-    if new != "0":
-        data.smooth_new_cases = (
-            data.groupby("country")["new_cases"]
-            .rolling(int(new))
+def smoothing_helper(smoothing_days):
+    if (smoothing_days != "0") & (smoothing_days != 0):
+        data.smooth_1st_der = (
+            data.groupby("country")["metric_1st_der"]
+            .rolling(int(smoothing_days))
             .mean()
             .reset_index()
-            .sort_values(["country", "level_1"])["new_cases"]
+            .sort_values(["country", "level_1"])["metric_1st_der"]
             .reset_index(drop=True)
         )
-        data.smooth_new_deaths = (
-            data.groupby("country")["new_deaths"]
-            .rolling(int(new))
+        data.smooth_2nd_der = (
+            data.groupby("country")["metric_2nd_der"]
+            .rolling(int(smoothing_days))
             .mean()
             .reset_index()
-            .sort_values(["country", "level_1"])["new_deaths"]
-            .reset_index(drop=True)
-        )
-        data.smooth_accel_cases = (
-            data.groupby("country")["acceleration_cases"]
-            .rolling(int(new))
-            .mean()
-            .reset_index()
-            .sort_values(["country", "level_1"])["acceleration_cases"]
-            .reset_index(drop=True)
-        )
-        data.smooth_accel_deaths = (
-            data.groupby("country")["acceleration_deaths"]
-            .rolling(int(new))
-            .mean()
-            .reset_index()
-            .sort_values(["country", "level_1"])["acceleration_deaths"]
+            .sort_values(["country", "level_1"])["metric_2nd_der"]
             .reset_index(drop=True)
         )
     else:
-        data["smooth_new_cases"] = data.new_cases
-        data["smooth_new_deaths"] = data.new_deaths
-        data["smooth_accel_cases"] = data.acceleration_cases
-        data["smooth_accel_deaths"] = data.acceleration_deaths
+        data["smooth_1st_der"] = data.metric_1st_der
+        data["smooth_2nd_der"] = data.metric_2nd_der
     source.data = data.loc[
         (data.date >= datetime.datetime.fromtimestamp(date_range.value[0] / 1000))
         & (data.date <= datetime.datetime.fromtimestamp(date_range.value[1] / 1000))
@@ -574,6 +538,49 @@ def smoothing_update(attr, old, new):
         & (data.country == select2.value),
         :,
     ].reset_index(drop=True)
+
+def smoothing_update(attr, old, new):
+    smoothing_helper(new)
+
+def metric_update(attr, old, new):
+    col_count = metric_options_count[new]
+    col_1st_der = metric_options_1st_der[new]
+    col_2nd_der = metric_options_2nd_der[new]
+    data["metric"] = data[col_count]
+    data["metric_1st_der"] = data[col_1st_der]
+    data["metric_2nd_der"] = data[col_2nd_der]
+    if new == "Cases":
+        data["double_3"] = data.double_3_cases
+        data["double_5"] = data.double_5_cases
+        data["double_10"] = data.double_10_cases
+    elif new == "Deaths":
+        data["double_3"] = data.double_3_deaths
+        data["double_5"] = data.double_5_deaths
+        data["double_10"] = data.double_10_deaths
+    else:
+        data["double_3"] = 0
+        data["double_5"] = 0
+        data["double_10"] = 0
+    fc_source.data = forecasts.loc[
+        (forecasts.country == select1.value)
+        & (forecasts.metric == metric_forecast_name[metric_dropdown.value])
+        & (
+            forecasts.date
+            >= datetime.datetime.fromtimestamp(date_range.value[0] / 1000)
+        ),
+        :,
+    ].reset_index(drop=True)
+    fc_source2.data = forecasts.loc[
+        (forecasts.country == select2.value)
+        & (forecasts.metric == metric_forecast_name[metric_dropdown.value])
+        & (
+            forecasts.date
+            >= datetime.datetime.fromtimestamp(date_range.value[0] / 1000)
+        ),
+        :,
+    ].reset_index(drop=True)
+
+    smoothing_helper(smoothing.value)
 
 
 # dropdowns
@@ -609,149 +616,95 @@ date_range = DateRangeSlider(
 date_range.on_change("value", date_range_update_plot)
 
 smoothing = Select(
-    title="# Days for moving average smoothing [2]",
+    title="# Days for moving average smoothing [3]",
     options=["0", "3", "5", "7", "9"],
     value="0",
 )
 smoothing.on_change("value", smoothing_update)
 
+metric_dropdown = Select(
+    title="Metric [2]",
+    options=metric_options,
+    value="Cases"
+)
+metric_dropdown.on_change("value", metric_update)
+
 
 # plots
 plots = {}
 metrics = {
-    "confirmed": "Confirmed Cases",
-    "deaths": "Deaths",
-    "smooth_new_cases": "New Cases",
-    "smooth_new_deaths": "New Deaths",
-    "smooth_accel_cases": "Cases Acceleration",
-    "smooth_accel_deaths": "Deaths Acceleration",
+    "metric": "Metric Title",
+    "smooth_1st_der": "Metric 1st der title",
+    "smooth_2nd_der": "Metric 2nd der title"
 }
 axis_types = ["linear", "log", "bar"]
 for metric, title in metrics.items():
     for axis_type in axis_types:
         if axis_type != "bar":
             # log dotted lines
-            if (metric in ["confirmed", "deaths"]) & (axis_type == "log"):
+            if (metric_dropdown.value in ["Cases", "Deaths"]) & (axis_type == "log"):
+                if metric_dropdown.value == "Cases":
+                    label = "Days Since 100th Case"
+                    value = "@days_since_100"
+                elif metric.dropdown.value == "Deaths":
+                    label = "Days Since 10th Death"
+                    value = "@days_since_10"
                 p = add_plot(line_plot, metric, title, axis_type, "first")
-                if metric == "confirmed":
-                    p.line(
-                        "x_col",
-                        "double_3_cases",
-                        source=source,
-                        color="grey",
-                        line_dash="dashed",
-                        name="double_3_cases",
-                    )
-                    p.line(
-                        "x_col",
-                        "double_5_cases",
-                        source=source,
-                        color="grey",
-                        line_dash="dashed",
-                        name="double_5_cases",
-                    )
-                    p.line(
-                        "x_col",
-                        "double_10_cases",
-                        source=source,
-                        color="grey",
-                        line_dash="dashed",
-                        name="double_10_cases",
-                    )
-                    p.add_tools(
-                        HoverTool(
-                            tooltips=[
-                                ("Country/Region", "@country"),
-                                ("Date", "@date_string"),
-                                (title, "@" + metric + "{,}"),
-                            ],
-                            names=["first"],
-                        ),
-                        HoverTool(
-                            tooltips=[
-                                ("Country/Region", "@country"),
-                                ("Days since 100th Case", "@days_since_100"),
-                                ("Double every 3 days", "@double_3_cases{,}"),
-                            ],
-                            names=["double_3_cases"],
-                        ),
-                        HoverTool(
-                            tooltips=[
-                                ("Country/Region", "@country"),
-                                ("Days since 100th Case", "@days_since_100"),
-                                ("Double every 5 days", "@double_5_cases{,}"),
-                            ],
-                            names=["double_5_cases"],
-                        ),
-                        HoverTool(
-                            tooltips=[
-                                ("Country/Region", "@country"),
-                                ("Days since 100th Case", "@days_since_100"),
-                                ("Double every 10 days", "@double_10_cases{,}"),
-                            ],
-                            names=["double_10_cases"],
-                        ),
-                    )
-                else:
-                    p.line(
-                        "x_col",
-                        "double_3_deaths",
-                        source=source,
-                        color="grey",
-                        line_dash="dashed",
-                        name="double_3_deaths",
-                    )
-                    p.line(
-                        "x_col",
-                        "double_5_deaths",
-                        source=source,
-                        color="grey",
-                        line_dash="dashed",
-                        name="double_5_deaths",
-                    )
-                    p.line(
-                        "x_col",
-                        "double_10_deaths",
-                        source=source,
-                        color="grey",
-                        line_dash="dashed",
-                        name="double_10_deaths",
-                    )
-                    p.add_tools(
-                        HoverTool(
-                            tooltips=[
-                                ("Country/Region", "@country"),
-                                ("Days since 10th Death", "@days_since_10"),
-                                ("Date", "@date_string"),
-                                (title, "@" + metric + "{,}"),
-                            ],
-                            names=["first"],
-                        ),
-                        HoverTool(
-                            tooltips=[
-                                ("Country/Region", "@country"),
-                                ("Days since 10th Death", "@days_since_10"),
-                                ("Double every 3 days", "@double_3_deaths{,}"),
-                            ],
-                            names=["double_3_deaths"],
-                        ),
-                        HoverTool(
-                            tooltips=[
-                                ("Country/Region", "@country"),
-                                ("Days since 10th Death", "@days_since_10"),
-                                ("Double every 5 days", "@double_5_deaths{,}"),
-                            ],
-                            names=["double_5_deaths"],
-                        ),
-                        HoverTool(
-                            tooltips=[
-                                ("Country/Region", "@country"),
-                                ("Days since 10th Death", "@days_since_10"),
-                                ("Double every 10 days", "@double_10_deaths{,}"),
-                            ],
-                            names=["double_10_deaths"],
-                        ),
-                    )
+                p.line(
+                    "x_col",
+                    "double_3",
+                    source=source,
+                    color="grey",
+                    line_dash="dashed",
+                    name="double_3",
+                )
+                p.line(
+                    "x_col",
+                    "double_5",
+                    source=source,
+                    color="grey",
+                    line_dash="dashed",
+                    name="double_5",
+                )
+                p.line(
+                    "x_col",
+                    "double_10",
+                    source=source,
+                    color="grey",
+                    line_dash="dashed",
+                    name="double_10",
+                )
+                p.add_tools(
+                    HoverTool(
+                        tooltips=[
+                            ("Country/Region", "@country"),
+                            ("Date", "@date_string"),
+                            (title, "@" + metric + "{,}"),
+                        ],
+                        names=["first"],
+                    ),
+                    HoverTool(
+                        tooltips=[
+                            ("Country/Region", "@country"),
+                            ("Double every 3 days", "@double_3{,}"),
+                        ],
+                        names=["double_3"],
+                    ),
+                    HoverTool(
+                        tooltips=[
+                            ("Country/Region", "@country"),
+                            ("Double every 5 days", "@double_5{,}"),
+                        ],
+                        names=["double_5"],
+                    ),
+                    HoverTool(
+                        tooltips=[
+                            ("Country/Region", "@country"),
+                            ("Double every 10 days", "@double_10{,}"),
+                        ],
+                        names=["double_10"],
+                    ),
+                )
                 plots[metric + axis_type] = p
             else:
                 p = add_plot(line_plot, metric, title, axis_type, "first")
@@ -781,15 +734,11 @@ for metric, title in metrics.items():
             plots[metric + axis_type] = p
 
 # forecast plots
-metrics = {"confirmed": "Cases Forecast", "deaths": "Deaths Forecast"}
+metrics = {"metric": "Metric Title"}
 for metric, title in metrics.items():
     for axis_type in axis_types[:-1]:
-        if metric == "confirmed":
-            sc = fc_source_cases
-            sc2 = fc_source_cases2
-        else:
-            sc = fc_source_deaths
-            sc2 = fc_source_deaths2
+        sc = fc_source
+        sc2 = fc_source2
         if axis_type == "linear":
             fc_title = title + " (linear scale)"
         else:
@@ -823,33 +772,24 @@ line_div_text = """
 """
 linear_tab_layout = column(
     row(Div(text=line_div_text, width=600)),
-    row(plots["confirmedlinear"]),
-    row(plots["smooth_new_caseslinear"]),
-    row(plots["smooth_accel_caseslinear"]),
-    row(plots["deathslinear"]),
-    row(plots["smooth_new_deathslinear"]),
-    row(plots["smooth_accel_deathslinear"]),
+    row(plots["metriclinear"]),
+    row(plots["smooth_1st_derlinear"]),
+    row(plots["smooth_2nd_derlinear"]),
 )
 log_div_text = """
 <h4>Explanation: README [4]</h4>
 """
 log_tab_layout = column(
     row(Div(text=log_div_text, width=600)),
-    row(plots["confirmedlog"]),
-    row(plots["smooth_new_caseslog"]),
-    row(plots["smooth_accel_caseslog"]),
-    row(plots["deathslog"]),
-    row(plots["smooth_new_deathslog"]),
-    row(plots["smooth_accel_deathslog"]),
+    row(plots["metriclog"]),
+    row(plots["smooth_1st_derlog"]),
+    row(plots["smooth_2nd_derlog"]),
 )
 bar_tab_layout = column(
     row(Div(text=line_div_text, width=600)),
-    row(plots["confirmedbar"]),
-    row(plots["smooth_new_casesbar"]),
-    row(plots["smooth_accel_casesbar"]),
-    row(plots["deathsbar"]),
-    row(plots["smooth_new_deathsbar"]),
-    row(plots["smooth_accel_deathsbar"]),
+    row(plots["metricbar"]),
+    row(plots["smooth_1st_derbar"]),
+    row(plots["smooth_2nd_derbar"]),
 )
 forecast_text = """
 <h4>Explanation: README [5]</h4>
@@ -857,10 +797,8 @@ forecast_text = """
 forecast_div = Div(text=forecast_text, width=600)
 forecast_tab_layout = column(
     row(forecast_div),
-    row(plots["forecast_confirmedlinear"]),
-    row(plots["forecast_confirmedlog"]),
-    row(plots["forecast_deathslinear"]),
-    row(plots["forecast_deathslog"]),
+    row(plots["forecast_metriclinear"]),
+    row(plots["forecast_metriclog"]),
 )
 linear_tab = Panel(child=linear_tab_layout, title="Linear Scale")
 log_tab = Panel(child=log_tab_layout, title="Log Scale")
@@ -923,9 +861,9 @@ for p in all_plots:
 layout = column(
     row(select1, select2),
     Spacer(height=15),
-    row(x_col, smoothing),
+    row(x_col, metric_dropdown),
     Spacer(height=15),
-    row(date_range),
+    row(date_range, smoothing),
     Spacer(height=20),
     row(data_table),
     Spacer(height=30),
