@@ -77,6 +77,8 @@ def gen_table(country1, country2):
         "Country/Region",
         "Data as of",
         "Confirmed Cases",
+        "Recovered Cases",
+        "Active Cases",
         "Deaths",
         "Death Rate",
         "New Cases Yesterday",
@@ -87,25 +89,29 @@ def gen_table(country1, country2):
             country1,
             max(df1.date).strftime("%Y-%m-%d"),
             "{:,.0f}".format(max(df1.confirmed)),
+            "{:,.0f}".format(max(df1.recovered)),
+            "{:,.0f}".format(max(df1.active_cases)),
             "{:,.0f}".format(max(df1.deaths)),
             "{:.2f}".format(df1.death_rate[len(df1) - 1] * 100) + "%",
             "{:,.0f}".format(df1.new_cases[len(df1) - 1]),
             "{:,.0f}".format(df1.new_deaths[len(df1) - 1]),
         ]
     else:
-        overview_df_values1 = ["", "", "", "", "", "", ""]
+        overview_df_values1 = ["", "", "", "", "", "", "", "", ""]
     if len(df2) > 0:
         overview_df_values2 = [
             country2,
             max(df2.date).strftime("%Y-%m-%d"),
             "{:,.0f}".format(max(df2.confirmed)),
+            "{:,.0f}".format(max(df2.recovered)),
+            "{:,.0f}".format(max(df2.active_cases)),
             "{:,.0f}".format(max(df2.deaths)),
             "{:.2f}".format(df2.death_rate[len(df2) - 1] * 100) + "%",
             "{:,.0f}".format(df2.new_cases[len(df2) - 1]),
             "{:,.0f}".format(df2.new_deaths[len(df2) - 1]),
         ]
     else:
-        overview_df_values2 = ["", "", "", "", "", "", ""]
+        overview_df_values2 = ["", "", "", "", "", "", "", "", ""]
     overview_df = pd.DataFrame(
         {
             "name": overview_df_names,
@@ -138,7 +144,7 @@ columns = [
     ),
 ]
 data_table = DataTable(
-    source=source_table, columns=columns, width=600, height=200, row_height=25
+    source=source_table, columns=columns, width=600, height=250, row_height=25
 )
 
 # acceleration overview table source
