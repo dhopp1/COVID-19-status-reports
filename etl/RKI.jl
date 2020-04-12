@@ -71,6 +71,7 @@ rename!(historic, Dict(:deaths => :new_deaths))
 sort!(historic, (:country, :date))
 historic[!, :confirmed] .= 0.0
 historic[!, :deaths] .= 0.0
+historic[!, :recovered] .= 0.0
 historic[!, :acceleration_cases] .= 0.0
 historic[!, :acceleration_deaths] .= 0.0
 for (new_col, metric) in Dict(:confirmed => :new_cases, :deaths => :new_deaths, :acceleration_cases => :new_cases, :acceleration_deaths => :new_deaths)
@@ -83,6 +84,8 @@ for (new_col, metric) in Dict(:confirmed => :new_cases, :deaths => :new_deaths, 
     end
 end
 historic[!, :death_rate] = historic.deaths ./ historic.confirmed
+historic[!, :active_cases] = historic.confirmed .- historic.deaths
+historic[!, :new_recoveries] .= 0
 historic[!, :days_since_100] .= 0
 historic[!, :days_since_10] .= 0
 for bundesland in bundesländer

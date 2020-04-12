@@ -9,7 +9,7 @@ function add_group(countries, df::DataFrame, name::String)
     subgroup = df[in.(df.country, (countries,)), :]
     cols(cols, operator) = eval(Meta.parse(replace(":" .* (cols .|> string) .* " => $operator" .|> string |> string, r"\"|\[|\]"=>"")))
     output = by(subgroup, :date,  cols(names(subgroup)[3:end-2], "sum"))
-    rename!(output, [:date, :confirmed, :deaths, :death_rate, :new_cases, :new_deaths, :acceleration_cases, :acceleration_deaths])
+    rename!(output, [:date, :confirmed, :deaths, :death_rate, :recovered, :active_cases, :new_cases, :new_deaths, :new_recoveries, :acceleration_cases, :acceleration_deaths])
     output[!, :death_rate] = output.deaths ./ output.confirmed
     output[!, :country] .= name
     output[!, :days_since_100] .= 0

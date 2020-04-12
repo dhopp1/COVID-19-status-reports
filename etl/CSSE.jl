@@ -45,7 +45,7 @@ for state in unique(us_confirmed.state)
 end
 
 # distinguishing states with territories via "Mainland"
-for data_set in [death, confirmed, recovered, ]
+for data_set in [death, confirmed, recovered]
     for country in ["United Kingdom", "Netherlands", "France", "Denmark"]
         data_set[(data_set.state .== "") .& (data_set.country .== country), :state] .= "Mainland"
     end
@@ -68,22 +68,26 @@ recovered = country_total(recovered)
 
 # rename states to be in one column
 suffix(state, country) = state == "" ? country : country * ": " * state
-for data_set in [death, confirmed]
+for data_set in [death, confirmed, recovered]
     data_set[!, :country] = suffix.(data_set.state, data_set.country)
     select!(data_set, Not([:state, :Lat, :Long]))
 end
 
-function gen_df(country::String, d::Array{Int64}, c::Array{Int64}, dates::Array{Date})
+function gen_df(country::String, d::Array{Int64}, c::Array{Int64}, r::Array{Int64}, dates::Array{Date})
     dates = reshape(dates, :, 1)
     df = convert(DataFrame, dates) |> x -> rename!(x, [:date])
     df[!, :country] .= country
     df[!, :confirmed] = c
     df[!, :deaths] = d
     df[!, :death_rate] = d ./ c
+    df[!, :recovered] = r
+    df[!, :active_cases] = c .- d .- r
     df[!, :new_cases] .= 0
     df[2:end, :new_cases] = df[2:end, :confirmed] .- df[1:end-1, :confirmed]
     df[!, :new_deaths] .= 0
     df[2:end, :new_deaths] = df[2:end, :deaths] .- df[1:end-1, :deaths]
+    df[!, :new_recoveries] .= 0
+    df[2:end, :new_recoveries] = df[2:end, :recovered] .- df[1:end-1, :recovered]
     df[!, :acceleration_cases] .= 0
     df[2:end, :acceleration_cases] = df[2:end, :new_cases] .- df[1:end-1, :new_cases]
     df[!, :acceleration_deaths] .= 0
@@ -111,7 +115,14 @@ function country_data(country)
     d = death[death.country .== country, 2:end] |> Array |> Iterators.flatten |> collect
     dates = [Dates.Date(2020, 1, 22) + Dates.Day(day) for day in 1:length(d)]
     c = confirmed[confirmed.country .== country, 2:end] |> Array |> Iterators.flatten |> collect
-    df = gen_df(country, d, c, dates)
+    r = recovered[recovered.country .== country, 2:end]
+    if nrow(r) == 0
+        r = repeat([0], length(c))
+    else
+        r = r[1, :] |> DataFrame
+    end
+    r = r |> Array |> Iterators.flatten |> collect
+    df = gen_df(country, d, c, r, dates)
     return df
 end
 
@@ -125,8 +136,11 @@ no_states = all_country_data[.!occursin.(":", all_country_data.country), :]
 no_states = by(no_states, :date,
     confirmed = :confirmed => sum,
     deaths = :deaths => sum,
+    recovered = :recovered => sum,
+    active_cases = :active_cases => sum,
     new_cases = :new_cases => sum,
     new_deaths = :new_deaths => sum,
+    new_recoveries = :new_recoveries => sum,
     acceleration_cases = :acceleration_cases => sum,
     acceleration_deaths = :acceleration_deaths => sum
 )
