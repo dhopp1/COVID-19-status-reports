@@ -3,6 +3,7 @@ include("CSSE.jl")
 include("Doubling.jl")
 include("Forecast.jl")
 include("Groups.jl")
+include("Population.jl")
 include("RKI.jl")
 
 using
@@ -11,6 +12,7 @@ using
 .Doubling,
 .Forecast,
 .Groups,
+.Population,
 .RKI,
 CSV
 
@@ -20,9 +22,14 @@ all_country_data = CSSE.all_country_data
 # RKI
 all_country_data = RKI.gen_RKI(all_country_data)
 
+# Population
+println("Population: adding country populations")
+all_country_data = Population.add_population(all_country_data)
+
 # Groups
 println("Groups: adding country groups")
 all_country_data = Groups.gen_groups(all_country_data)
+Groups.persist_pop(all_country_data)
 
 # Doubling
 println("Doubling: adding log doubling times")

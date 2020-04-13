@@ -546,9 +546,13 @@ def smoothing_helper(smoothing_days):
 def smoothing_update(attr, old, new):
     smoothing_helper(new)
 
-def rename_plots(metric):
-    plots["smooth_2nd_derlinear"].title.text = metric + " Acceleration"
-    plots["metriclog"].title.text = "Cumulative " + metric
+def rename_plots(metric, pop_type):
+    if pop_type == "Per 100k Population":
+        suffix = " (per 100k population)"
+    else:
+        suffix = ""
+    plots["smooth_2nd_derlinear"].title.text = metric + " Acceleration" + suffix
+    plots["metriclog"].title.text = "Cumulative " + metric + suffix
     for p in [
             "metriclinear",
             "smooth_1st_derlinear",
@@ -563,15 +567,15 @@ def rename_plots(metric):
             "forecast_metriclog"
         ]:
             if p in ["metriclinear", "metriclog", "metricbar"]:
-                plots[p].title.text = "Cumulative " + metric 
+                plots[p].title.text = "Cumulative " + metric + suffix
             elif p in ["smooth_1st_derlinear", "smooth_1st_derlog", "smooth_1st_derbar"]:
-                plots[p].title.text = "New Daily " + metric
+                plots[p].title.text = "New Daily " + metric + suffix
             elif p in ["smooth_2nd_derlinear", "smooth_2nd_derlog", "smooth_2nd_derbar"]:
-                plots[p].title.text = metric + " Acceleration"
+                plots[p].title.text = metric + " Acceleration" + suffix
             elif p == "forecast_metriclinear":
-                plots[p].title.text = "Forecast " + metric + " (linear scale)"
+                plots[p].title.text = "Forecast " + metric + " (linear scale)" + suffix
             elif p == "forecast_metriclog":
-                plots[p].title.text = "Forecast " + metric + " (log scale)"
+                plots[p].title.text = "Forecast " + metric + " (log scale)" + suffix
 
 def metric_update(attr, old, new):
     col_count = metric_options_count[new]
@@ -611,9 +615,51 @@ def metric_update(attr, old, new):
         :,
     ].reset_index(drop=True)
 
-    rename_plots(metric_dropdown.value)
+    rename_plots(metric_dropdown.value, pop_dropdown.value)
     smoothing_helper(smoothing.value)
 
+def make_per_100(df, column, round=False):
+    if round:
+        df[column] = ((df[column] / df["population"]) * 100000).round(2)
+    else:
+        df[column] = ((df[column] / df["population"]) * 100000)
+def make_total(df, column, round=False):
+    if round:
+        df[column] = (df[column] * (df["population"]/100000)).round(2)
+    else:
+        df[column] = (df[column] * (df["population"]/100000))
+def pop_update_helper(new):
+    # graphs
+    for src in [source, source2]:
+        for col in ["confirmed", "deaths", "metric", "metric_1st_der", "metric_2nd_der", "smooth_1st_der", "smooth_2nd_der", "double_3", "double_5", "double_10"]:
+            if new == "Total Numbers":
+                make_total(src.data, col)
+            else:
+                make_per_100(src.data, col)
+    # forecasts
+    for src in [fc_source, fc_source2]:
+        for col in ["point_forecast", "lo_80", "hi_80", "lo_95", "hi_95"]:
+            if new == "Total Numbers":
+                make_total(src.data, col)
+            else:
+                make_per_100(src.data, col)
+    # overview table
+    for col in data.columns:
+        if not(col in ["date", "country", "death_rate", "days_since_100", "days_since_10", "population", "date_string", "x_col"]):
+            if new == "Total Numbers":
+                make_total(data, col)
+            else:
+                make_per_100(data, col)
+    source_table.data = gen_table(select1.value, select2.value)
+    # acceleration table
+    acceleration_data = pd.read_csv("plots/data/acceleration_data.csv") 
+    for col in ["Confirmed Cases", "Cases 5 Days Ago", "Recovered Cases", "Active Cases", "Deaths"]:
+        if new != "Total Numbers":
+            make_per_100(acceleration_data, col, True)
+    source_acceleration_table.data = dict(acceleration_data)
+def pop_update(attr, old, new):
+    pop_update_helper(new)
+    rename_plots(metric_dropdown.value, pop_dropdown.value)
 
 # dropdowns
 select1 = Select(
@@ -648,7 +694,7 @@ date_range = DateRangeSlider(
 date_range.on_change("value", date_range_update_plot)
 
 smoothing = Select(
-    title="# Days for moving average smoothing [3]",
+    title="# Days for moving average smoothing [4]",
     options=["0", "3", "5", "7", "9"],
     value="0",
 )
@@ -660,6 +706,13 @@ metric_dropdown = Select(
     value="Cases"
 )
 metric_dropdown.on_change("value", metric_update)
+
+pop_dropdown = Select(
+    title="Total/Per 100k Population [3]",
+    options=["Total Numbers", "Per 100k Population"],
+    value="Total Numbers"
+)
+pop_dropdown.on_change("value", pop_update)
 
 
 # plots
@@ -805,11 +858,11 @@ for metric, title in metrics.items():
 
 # log-linear tabs
 line_div_text = """
-<h4>Explanation: README [4]</h4>
+<h4>Explanation: README [5]</h4>
 """
 
 # initialize plot names
-rename_plots("Cases")
+rename_plots("Cases", pop_dropdown.value)
 
 linear_tab_layout = column(
     row(Div(text=line_div_text, width=600)),
@@ -818,7 +871,7 @@ linear_tab_layout = column(
     row(plots["smooth_2nd_derlinear"]),
 )
 log_div_text = """
-<h4>Explanation: README [5]</h4>
+<h4>Explanation: README [6]</h4>
 """
 log_tab_layout = column(
     row(Div(text=log_div_text, width=600)),
@@ -833,7 +886,7 @@ bar_tab_layout = column(
     row(plots["smooth_2nd_derbar"]),
 )
 forecast_text = """
-<h4>Explanation: README [6]</h4>
+<h4>Explanation: README [7]</h4>
 """
 forecast_div = Div(text=forecast_text, width=600)
 forecast_tab_layout = column(
@@ -846,7 +899,7 @@ log_tab = Panel(child=log_tab_layout, title="Log Scale")
 bar_tab = Panel(child=bar_tab_layout, title="Bar Graphs")
 forecast_tab = Panel(child=forecast_tab_layout, title="Forecasts")
 accel_div_text = """
-<h4>Explanation: README [7]</h4>
+<h4>Explanation: README [8]</h4>
 """
 accel_div = Div(text=accel_div_text, width=600)
 acceleration_tab = Panel(
@@ -874,19 +927,22 @@ All this site does is give access to the data produced at the sources listed in 
 <strong>[2] Metric:</strong> This filter will change the metric (y-axis) the graphs display. Active cases = cases - deaths - recovered cases. US and German states lack recovered data, so their active cases are just cases - deaths.
 </p>
 <p>
-<strong>[3] Moving Average Smoothing:</strong> This filter refers to how much smoothing occurs in the new cases/deaths and acceleration cases/deaths plots. Countries can report very different numbers from day to day due to many factors like weekends, accounting errors, etc., so this dropdown attempts to smooth that volatility a little to see a better idea of the trend. 3 means that each day's value will be replaced with the average of 3 days' values, and so on. So a higher number means more smoothing.
+<strong>[3] Total/Per 100k Population:</strong> This filter will change all metrics to be per 100 thousand people, making metrics more comparable by country. Population data comes from <a href="https://en.wikipedia.org/wiki/List_of_countries_by_population_(United_Nations)">here</a> for countries, <a href="https://en.wikipedia.org/wiki/States_of_Germany">here</a> for German states, <a href="https://en.wikipedia.org/wiki/Provinces_of_China">here</a> for Chinese provinces, <a href="https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States_by_population">here</a> for US states, and their respective Wikipedia pages for other territories.
 </p>
 <p>
-<strong>[4] Bar Graphs/Linear Scale:</strong> Cumulative numbers mean all of the metric (e.g. cases, deaths, etc.) reported up to a certain day. New daily metric are the number of the metric reported/calculated for that day alone. Acceleration is the rate of change of the metric. A higher acceleration means not only are cases e.g. growing, but they're growing at an <em>increasing</em> rate. A negative acceleration is good (except for recovered cases) and means that cases e.g. are still growing, but not as quickly.
+<strong>[4] Moving Average Smoothing:</strong> This filter refers to how much smoothing occurs in the new cases/deaths and acceleration cases/deaths plots. Countries can report very different numbers from day to day due to many factors like weekends, accounting errors, etc., so this dropdown attempts to smooth that volatility a little to see a better idea of the trend. 3 means that each day's value will be replaced with the average of 3 days' values, and so on. So a higher number means more smoothing.
 </p>
 <p>
-<strong>[5]: Log Scale </strong> See an explanation of a logarithmic scale <a href="https://en.wikipedia.org/wiki/Logarithmic_scale">here</a>. The dotted lines show the number of cases/deaths there would be if they doubled every 3, 5, or 10 days for country 1 (they are only visible for the "Cases" and "Deaths" metrics). They start from the day of the 100th confirmed case and 10th death for cases and deaths respectively. As a result they are interpreted most easily when the X axis is set to those respective metrics. Slopes rather than absolute levels should be used for comparison.
+<strong>[5] Bar Graphs/Linear Scale:</strong> Cumulative numbers mean all of the metric (e.g. cases, deaths, etc.) reported up to a certain day. New daily metric are the number of the metric reported/calculated for that day alone. Acceleration is the rate of change of the metric. A higher acceleration means not only are cases e.g. growing, but they're growing at an <em>increasing</em> rate. A negative acceleration is good (except for recovered cases) and means that cases e.g. are still growing, but not as quickly.
 </p>
 <p>
-<strong>[6]: Forecasts</strong> Forecast numbers and plots are created using <a href="https://otexts.com/fpp2/holt.html">Holt's linear trend method with dampening</a>. This is a linear model, which means it probably significantly underestimates countries that are experiencing the acceleration phase of their epidemics. It will probably be better at forecasting countries at a more mature phase, such as Italy or Spain. Important to note is that this is just one of many methods that can forecast the data, and I have not spent a significant amount of time validating it. I may spend more time in the future investigating and adding better forecasting methods. Plots display the point forecast and 80% prediction interval (darker shading), and 95% prediction interval (lighter shading).
+<strong>[6]: Log Scale </strong> See an explanation of a logarithmic scale <a href="https://en.wikipedia.org/wiki/Logarithmic_scale">here</a>. The dotted lines show the number of cases/deaths there would be if they doubled every 3, 5, or 10 days for country 1 (they are only visible for the "Cases" and "Deaths" metrics). They start from the day of the 100th confirmed case and 10th death for cases and deaths respectively. As a result they are interpreted most easily when the X axis is set to those respective metrics. Slopes rather than absolute levels should be used for comparison.
 </p>
 <p>
-<strong>[7]: Overview Table</strong> The "Acceleration of Last 5 Days" column is calculated by the average second derivative over the last 5 days / number of cases 5 days ago. It doesn't have much intrinsic meaning but is rather a more comparable/relative measure between countries of how fast new cases are accelerating. The table is scrollable and sortable. Highlight a row by clicking or tapping for reference when scrolling horizontally.
+<strong>[7]: Forecasts</strong> Forecast numbers and plots are created using <a href="https://otexts.com/fpp2/holt.html">Holt's linear trend method with dampening</a>. This is a linear model, which means it probably significantly underestimates countries that are experiencing the acceleration phase of their epidemics. It will probably be better at forecasting countries at a more mature phase, such as Italy or Spain. Important to note is that this is just one of many methods that can forecast the data, and I have not spent a significant amount of time validating it. I may spend more time in the future investigating and adding better forecasting methods. Plots display the point forecast and 80% prediction interval (darker shading), and 95% prediction interval (lighter shading).
+</p>
+<p>
+<strong>[8]: Overview Table</strong> The "Acceleration of Last 5 Days" column is calculated by the average second derivative over the last 5 days / number of cases 5 days ago. It doesn't have much intrinsic meaning but is rather a more comparable/relative measure between countries of how fast new cases are accelerating. The table is scrollable and sortable. Highlight a row by clicking or tapping for reference when scrolling horizontally.
 </p>
 """
 notes = Div(text=notes_text, width=600)
@@ -907,7 +963,9 @@ layout = column(
     Spacer(height=15),
     row(x_col, metric_dropdown),
     Spacer(height=15),
-    row(date_range, smoothing),
+    row(pop_dropdown, smoothing),
+    Spacer(height=15),
+    row(date_range),
     Spacer(height=20),
     row(data_table),
     Spacer(height=30),

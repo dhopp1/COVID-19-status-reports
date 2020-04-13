@@ -1,10 +1,13 @@
 module Forecast
 
 using
+CSV,
 DataFrames,
 Dates,
 RCall
 R"library(forecast)"
+
+population = CSV.read("../plots/data/population.csv") |> DataFrame!
 
 function r_forecast(x, y; country, metric, r_forecast_function, time_function, h)
     fc_x = [x[end] + time_function(i) for i in 1:h]
@@ -57,7 +60,7 @@ function gen_forecast(df)
             end
         end
     end
-    return fc
+    return join(fc, population, on=:country, kind=:left)
 end
 
 # module end

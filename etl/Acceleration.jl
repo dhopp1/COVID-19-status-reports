@@ -1,8 +1,11 @@
 module Acceleration
 
 using
+CSV,
 DataFrames,
 Statistics
+
+population = CSV.read("../plots/data/population.csv") |> DataFrame!
 
 function gen_acceleration(df)
     countries = df.country |> unique
@@ -35,7 +38,7 @@ function gen_acceleration(df)
     tmp[!, Symbol("Acceleration of Last 5 Days")] = round.(tmp[!, Symbol("Acceleration of Last 5 Days")] * 100, digits=2)
     select!(tmp, [Symbol("Country/Region"), Symbol("Confirmed Cases"), Symbol("Cases 5 Days Ago"), Symbol("% Increase in 5 Days"), Symbol("Acceleration of Last 5 Days"), Symbol("Recovered Cases"), Symbol("Active Cases"),:Deaths, Symbol("Death Rate")])
 
-    return tmp
+    return join(tmp, population, on=(Symbol("Country/Region"), :country), kind=:left)
 end
 
 # module end
