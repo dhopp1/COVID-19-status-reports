@@ -341,7 +341,7 @@ def add_forecast_plot(
             tooltips=[
                 ("Country/Region", "@country"),
                 ("Date", "@date_string"),
-                (f"Actual", "@" + metric + "{,}"),
+                (f"Actual", "@" + metric + "{,.00}"),
             ],
             names=["actual"],
             mode=hover_mode
@@ -350,7 +350,7 @@ def add_forecast_plot(
             tooltips=[
                 ("Country/Region", "@country"),
                 ("Date", "@date_string"),
-                (f"Forecast", "@point_forecast{,}"),
+                (f"Forecast", "@point_forecast{,.00}"),
             ],
             names=["forecast"],
             mode=hover_mode
@@ -359,7 +359,7 @@ def add_forecast_plot(
             tooltips=[
                 ("Country/Region", "@country"),
                 ("Date", "@date_string"),
-                ("Lower 80% Confidence Interval", "@lo_80{,}"),
+                ("Lower 80% Confidence Interval", "@lo_80{,.00}"),
             ],
             names=["lo_80"],
             mode="mouse"
@@ -368,7 +368,7 @@ def add_forecast_plot(
             tooltips=[
                 ("Country/Region", "@country"),
                 ("Date", "@date_string"),
-                ("Upper 80% Confidence Interval", "@hi_80{,}"),
+                ("Upper 80% Confidence Interval", "@hi_80{,.00}"),
             ],
             names=["hi_80"],
             mode="mouse"
@@ -377,7 +377,7 @@ def add_forecast_plot(
             tooltips=[
                 ("Country/Region", "@country"),
                 ("Date", "@date_string"),
-                ("Lower 95% Confidence Interval", "@lo_95{,}"),
+                ("Lower 95% Confidence Interval", "@lo_95{,.00}"),
             ],
             names=["lo_95"],
             mode="mouse"
@@ -386,7 +386,7 @@ def add_forecast_plot(
             tooltips=[
                 ("Country/Region", "@country"),
                 ("Date", "@date_string"),
-                ("Upper 95% Confidence Interval", "@hi_95{,}"),
+                ("Upper 95% Confidence Interval", "@hi_95{,.00}"),
             ],
             names=["hi_95"],
             mode="mouse"
@@ -735,7 +735,7 @@ for metric, title in metrics.items():
                         tooltips=[
                             ("Country/Region", "@country"),
                             ("Date", "@date_string"),
-                            (title, "@" + metric + "{,}"),
+                            (title, "@" + metric + "{,.00}"),
                         ],
                         names=["first"],
                         mode=hover_mode
@@ -771,7 +771,7 @@ for metric, title in metrics.items():
                         HoverTool(
                             tooltips=[
                                 ("Country/Region", "@country"),
-                                ("Double every 3 days", "@double_3{,}"),
+                                ("Double every 3 days", "@double_3{,.00}"),
                             ],
                             names=["double_3"],
                             mode="mouse"
@@ -779,7 +779,7 @@ for metric, title in metrics.items():
                         HoverTool(
                             tooltips=[
                                 ("Country/Region", "@country"),
-                                ("Double every 5 days", "@double_5{,}"),
+                                ("Double every 5 days", "@double_5{,.00}"),
                             ],
                             names=["double_5"],
                             mode="mouse"
@@ -787,7 +787,7 @@ for metric, title in metrics.items():
                         HoverTool(
                             tooltips=[
                                 ("Country/Region", "@country"),
-                                ("Double every 10 days", "@double_10{,}"),
+                                ("Double every 10 days", "@double_10{,.00}"),
                             ],
                             names=["double_10"],
                             mode="mouse"
@@ -801,7 +801,7 @@ for metric, title in metrics.items():
                         tooltips=[
                             ("Country/Region", "@country"),
                             ("Date", "@date_string"),
-                            (title, "@" + metric + "{,}"),
+                            (title, "@" + metric + "{,.00}"),
                         ],
                         names=["first"],
                         mode=hover_mode
@@ -815,7 +815,7 @@ for metric, title in metrics.items():
                     tooltips=[
                         ("Country/Region", "@country"),
                         ("Date", "@date_string"),
-                        (title, "@" + metric + "{,}"),
+                        (title, "@" + metric + "{,.00}"),
                     ],
                     names=["bar"],
                     mode=hover_mode
