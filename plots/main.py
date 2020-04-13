@@ -643,6 +643,11 @@ def pop_update_helper(new):
                 make_total(src.data, col)
             else:
                 make_per_100(src.data, col)
+    for col in ["point_forecast", "lo_80", "hi_80", "lo_95", "hi_95"]:
+        if new == "Total Numbers":
+            make_total(forecasts, col)
+        else:
+            make_per_100(forecasts, col)
     # overview table
     for col in data.columns:
         if not(col in ["date", "country", "death_rate", "days_since_100", "days_since_10", "population", "date_string", "x_col"]):
