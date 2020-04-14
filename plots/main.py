@@ -467,6 +467,8 @@ def date_range_update_plot(attr, old, new):
                 glyph.glyph.width = change_width(source.data, source2.data, True)
             else:
                 glyph.glyph.width = change_width(source.data, source2.data, False)
+    if x_col.value == "Date":
+        source2.data["x_col"] = source2.data["x_col"] + pd.Timedelta(hours=12)
 
 
 def x_axis_update_plot(attr, old, new):
@@ -509,6 +511,8 @@ def x_axis_update_plot(attr, old, new):
                 glyph.glyph.width = change_width(source.data, source2.data, True)
             else:
                 glyph.glyph.width = change_width(source.data, source2.data, False)
+    if new == "Date":
+        source2.data["x_col"] = source2.data["x_col"] + pd.Timedelta(hours=12)
 
 
 def smoothing_helper(smoothing_days):
@@ -547,6 +551,8 @@ def smoothing_helper(smoothing_days):
 
 def smoothing_update(attr, old, new):
     smoothing_helper(new)
+    if x_col.value == "Date":
+        source2.data["x_col"] = source2.data["x_col"] + pd.Timedelta(hours=12)
 
 def rename_plots(metric, pop_type):
     if pop_type == "Per 100k Population":
@@ -616,9 +622,10 @@ def metric_update(attr, old, new):
         ),
         :,
     ].reset_index(drop=True)
-
     rename_plots(metric_dropdown.value, pop_dropdown.value)
     smoothing_helper(smoothing.value)
+    if x_col.value == "Date":
+        source2.data["x_col"] = source2.data["x_col"] + pd.Timedelta(hours=12)
 
 def make_per_100(df, column, round=False):
     if round:
