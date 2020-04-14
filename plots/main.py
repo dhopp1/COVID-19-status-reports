@@ -430,6 +430,8 @@ def country_2_update_plot(attr, old, new):
         & (data.country == new),
         :,
     ].reset_index(drop=True)
+    if x_col.value == "Date":
+        source2.data["x_col"] = source2.data["x_col"] + pd.Timedelta(hours=12)
     fc_source2.data = forecasts.loc[
         (forecasts.country == new)
         & (forecasts.metric == metric_forecast_name[metric_dropdown.value])
@@ -917,7 +919,7 @@ This page uses data from <a href="https://github.com/CSSEGISandData/COVID-19">Jo
 <br>
 </p>
 <p style="font-size:14px">
-<strong>*Note:</strong> if you choose two countries with a large discrepency in case load, e.g. US and Cuba, the smaller country's curves will probably be invisible due to the scale. Set the second country to one with a more similar caseload to the smaller country, or set the second country to "None" to see the curve more clearly. Comparing two countries with bar plots may result in overlapping bars, so the "Linear Scale" tab for lines is a better option for this case; alternatively choosing an x axis other than date will also cause the bars to offset and be more easily comparable.
+<strong>*Note:</strong> if you choose two countries with a large discrepency in case load, e.g. US and Cuba, the smaller country's curves will probably be invisible due to the scale. Set the second country to one with a more similar caseload to the smaller country, or set the second country to "None" to see the curve more clearly.
 </p>
 <h4>A note on testing</h4>
 <p>
