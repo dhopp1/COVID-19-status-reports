@@ -17,6 +17,24 @@ us_death_path = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_s
 # drop US, get it from state accumulation except for recovered
 # missing 22.01 data, duplicated 23.01 data
 println("CSSE: initial CSV read")
+using
+CSV,
+CSVFiles,
+DataFrames,
+Dates
+
+cols(cols, operator) = eval(Meta.parse(replace(":" .* (cols .|> string) .* " => $operator" .|> string |> string, r"\"|\[|\]"=>"")))
+
+death_path = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv"
+confirmed_path = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv"
+recovered_path = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv"
+us_confirmed_path = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv"
+us_death_path = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv"
+
+# drop US, get it from state accumulation except for recovered
+# missing 22.01 data, duplicated 23.01 data
+println("CSSE: initial CSV read")
+
 
 # combining us counties to state level
 us_confirmed = load(us_confirmed_path) |> DataFrame! |> x -> rename!(x, Dict(Symbol("Province_State") => :state, Symbol("Country_Region") => :country, :Long_ => :Long)) |> x -> hcat(x[!, 7:10], x[!, 13], x[!, 13:end], makeunique=true) |> x -> rename!(x, Dict(:x1 => Symbol("1/22/20")))
@@ -112,7 +130,7 @@ function gen_df(country::String, d::Array{Int64}, c::Array{Int64}, r::Array{Int6
 end
 
 function country_data(country)
-    d = death[death.country .== country, 2:end] |> Array |> Iterators.flatten |> collect
+    d = death[death.country .== country, 2:end] |> Array |> Iterators.flatten |> collect .|> Int
     dates = [Dates.Date(2020, 1, 22) + Dates.Day(day) for day in 1:length(d)]
     c = confirmed[confirmed.country .== country, 2:end] |> Array |> Iterators.flatten |> collect
     r = recovered[recovered.country .== country, 2:end]
