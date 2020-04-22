@@ -257,6 +257,7 @@ US: Connecticut,3.565287e6
 US: Delaware,973764.0
 US: Diamond Princess,2000.0
 US: District of Columbia,705749.0
+US: Federal Bureau of Prisons,
 US: Florida,2.1477737e7
 US: Georgia,1.0617423e7
 US: Grand Princess,2000.0
@@ -296,8 +297,10 @@ US: South Carolina,5.148714e6
 US: South Dakota,884659.0
 US: Tennessee,6.833174e6
 US: Texas,2.8995881e7
+US: US Military,
 US: Utah,3.205958e6
 US: Vermont,623989.0
+US: Veteran Hospitals,
 US: Virgin Islands,106405.0
 US: Virginia,8.535519e6
 US: Washington,7.614893e6
