@@ -93,6 +93,7 @@ China: Xinjiang,2.1813334e7
 China: Yunnan,4.5966239e7
 China: Zhejiang,5.4426891e7
 Colombia,5.0882884e7
+Comoros,
 Congo (Brazzaville),5.518092e6
 Congo (Kinshasa),8.9561404e7
 Costa Rica,5.094114e6
@@ -238,6 +239,7 @@ Sweden,1.009927e7
 Switzerland,8.654618e6
 Syria,1.7500657e7
 Taiwan*,2.3816775e7
+Tajikistan,
 Tanzania,5.9734213e7
 Thailand,6.9799978e7
 Timor-Leste,1.318442e6
@@ -346,8 +348,8 @@ Germany: Sachsen-Anhalt,2.208321e6
 Germany: Schleswig-Holstein,2.896712e6
 Germany: Thüringen,2.143145e6
 EU,4.48389251e8
-UN: Africa,1.335814744e9
-UN: Asia-Pacific,4.492329173e9
+UN: Africa,
+UN: Asia-Pacific,
 UN: Eastern Europe,3.39831453e8
 UN: Latin America and the Caribbean,6.49376323e8
 UN: Western Europe and Others (+ US),9.19754175e8
@@ -355,5 +357,5 @@ OECD,1.316608199e9
 North America,5.87270272e8
 South America,4.30457607e8
 Europe,8.69103036e8
-Asia,4.628885709e9
-Arab League,4.30407864e8
+Asia,
+Arab League,
