@@ -35,7 +35,7 @@ bundesländer = [
 # getting data of missing days
 historic = load("../plots/data/rki_data.csv") |> DataFrame!
 # drop and reget last 4 days because all numbers will be reported
-historic = historic[historic.date .<= (Dates.today() - Dates.Day(10)), :]
+historic = historic[historic.date .<= (Dates.today() - Dates.Day(95)), :]
 json_array = []
 missing_days = [Dates.today() - Dates.Day(n) for n in (Dates.today() - maximum(historic.date)).value-1:-1:1]
 println("RKI: calling API")
