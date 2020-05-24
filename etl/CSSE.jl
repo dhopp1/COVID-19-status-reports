@@ -132,7 +132,7 @@ end
 function country_data(country)
     d = death[death.country .== country, 2:end] |> Array |> Iterators.flatten |> collect .|> Int
     dates = [Dates.Date(2020, 1, 22) + Dates.Day(day) for day in 1:length(d)]
-    c = confirmed[confirmed.country .== country, 2:end] |> Array |> Iterators.flatten |> collect
+    c = confirmed[confirmed.country .== country, 2:end] |> Array |> Iterators.flatten |> collect .|> Int
     r = recovered[recovered.country .== country, 2:end]
     if nrow(r) == 0
         r = repeat([0], length(c))
