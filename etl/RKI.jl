@@ -8,6 +8,8 @@ Dates,
 HTTP,
 JSON
 
+days_history = 100
+
 function api_call(;start_date::Date, end_date::Date, bundesland::String)
     url = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_COVID19/FeatureServer/0/query?where=Bundesland%20%3D%20%27$(bundesland)%27%20AND%20Meldedatum%20%3E%3D%20TIMESTAMP%20%27$(start_date)%2000%3A00%3A00%27%20AND%20Meldedatum%20%3C%3D%20TIMESTAMP%20%27$(end_date)%2000%3A00%3A00%27&outFields=Bundesland,AnzahlFall,AnzahlTodesfall,Meldedatum&outSR=4326&f=json"
     response_json = HTTP.get(url).body |> String |> JSON.Parser.parse
@@ -35,7 +37,7 @@ bundesländer = [
 # getting data of missing days
 historic = load("../plots/data/rki_data.csv") |> DataFrame!
 # drop and reget last 4 days because all numbers will be reported
-historic = historic[historic.date .<= (Dates.today() - Dates.Day(20)), :]
+historic = historic[historic.date .<= (Dates.today() - Dates.Day(days_history)), :]
 json_array = []
 missing_days = [Dates.today() - Dates.Day(n) for n in (Dates.today() - maximum(historic.date)).value-1:-1:1]
 println("RKI: calling API")

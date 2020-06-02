@@ -5,6 +5,7 @@ include("Forecast.jl")
 include("Groups.jl")
 include("Population.jl")
 include("RKI.jl")
+include("ImputeRecovered.jl")
 
 using
 .Acceleration,
@@ -30,6 +31,9 @@ all_country_data = Population.add_population(all_country_data)
 println("Groups: adding country groups")
 all_country_data = Groups.gen_groups(all_country_data)
 Groups.persist_pop(all_country_data)
+
+# Imputing recovered
+all_country_data = ImputeRecovered.impute(all_country_data)
 
 # Doubling
 println("Doubling: adding log doubling times")
