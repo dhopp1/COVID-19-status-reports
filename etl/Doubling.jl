@@ -4,7 +4,7 @@ function double_time(start_number, days, n)
     output = []
     for i in 1:n
         push!(output, start_number)
-        start_number = exp(log(2) / days) * start_number
+        start_number = minimum([exp(log(2) / days) * start_number, 1e9]) # limit to 1 billion to avoid y axis exploding
     end
     return output
 end
