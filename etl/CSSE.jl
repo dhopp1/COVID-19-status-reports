@@ -6,22 +6,7 @@ CSVFiles,
 DataFrames,
 Dates
 
-cols(cols, operator) = eval(Meta.parse(replace(":" .* (cols .|> string) .* " => $operator" .|> string |> string, r"\"|\[|\]"=>"")))
-
-death_path = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv"
-confirmed_path = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv"
-recovered_path = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv"
-us_confirmed_path = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv"
-us_death_path = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv"
-
-# drop US, get it from state accumulation except for recovered
-# missing 22.01 data, duplicated 23.01 data
 println("CSSE: initial CSV read")
-using
-CSV,
-CSVFiles,
-DataFrames,
-Dates
 
 cols(cols, operator) = eval(Meta.parse(replace(":" .* (cols .|> string) .* " => $operator" .|> string |> string, r"\"|\[|\]"=>"")))
 
@@ -34,16 +19,24 @@ us_death_path = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_s
 # drop US, get it from state accumulation except for recovered
 # missing 22.01 data, duplicated 23.01 data
 println("CSSE: initial CSV read")
-
 
 # combining us counties to state level
 us_confirmed = load(us_confirmed_path) |> DataFrame! |> x -> rename!(x, Dict(Symbol("Province_State") => :state, Symbol("Country_Region") => :country, :Long_ => :Long)) |> x -> hcat(x[!, 7:10], x[!, 13], x[!, 13:end], makeunique=true) |> x -> rename!(x, Dict(:x1 => Symbol("1/22/20")))
 rename!(us_confirmed, [[:state, :country]; Symbol.(["x" * string(i) for i in 1:ncol(us_confirmed)-2])])
-us_confirmed = by(us_confirmed, [:state, :country], cols(names(us_confirmed)[3:end], "sum"))
+# any by() handle newer julia version
+try
+    global us_confirmed = by(us_confirmed, [:state, :country], cols(names(us_confirmed)[3:end], "sum"))
+catch
+    global us_confirmed = groupby(us_confirmed, [:state, :country]) |> x-> combine(x, cols(names(us_confirmed)[3:end], "sum")...)
+end
 
 us_death = load(us_death_path) |> DataFrame! |> x -> rename!(x, Dict(Symbol("Province_State") => :state, Symbol("Country_Region") => :country, :Long_ => :Long)) |> x -> x[!, [7:10;13:end]]
 rename!(us_death, [[:state, :country]; Symbol.(["x" * string(i) for i in 1:ncol(us_death)-2])])
-us_death = by(us_death, [:state, :country], cols(names(us_death)[3:end], "sum"))
+try
+    global us_death = by(us_death, [:state, :country], cols(names(us_death)[3:end], "sum"))
+catch
+    global us_death = groupby(us_death, [:state, :country]) |> x->  combine(x, cols(names(us_death)[3:end], "sum")...)
+end
 
 confirmed = load(confirmed_path) |> DataFrame! |> x -> rename!(x, Dict(Symbol("Province/State") => :state, Symbol("Country/Region") => :country))
 rename!(us_confirmed, names(confirmed))
