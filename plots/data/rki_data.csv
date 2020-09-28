@@ -3335,36 +3335,22 @@ date,country,new_cases,deaths
 2020-09-05,Sachsen-Anhalt,1.5,0.0
 2020-09-05,Schleswig-Holstein,4.0,0.0
 2020-09-05,Thüringen,2.0,0.0
-2020-09-07,Baden-Württemberg,221.0,0.0
 2020-09-06,Baden-Württemberg,50.0,0.0
-2020-09-07,Bayern,428.0,1.0
 2020-09-06,Bayern,98.0,0.0
-2020-09-07,Berlin,132.0,0.0
 2020-09-06,Berlin,1.5,0.0
-2020-09-07,Brandenburg,13.0,0.0
-2020-09-07,Bremen,3.0,0.0
 2020-09-06,Bremen,1.5,0.0
 2020-09-06,Hamburg,16.0,0.0
-2020-09-07,Hamburg,22.0,0.0
 2020-09-06,Hessen,27.0,0.0
-2020-09-07,Hessen,128.0,1.0
-2020-09-07,Mecklenburg-Vorpommern,6.0,0.0
 2020-09-06,Mecklenburg-Vorpommern,0.5,0.0
-2020-09-07,Niedersachsen,111.0,0.0
 2020-09-06,Niedersachsen,14.0,0.5
 2020-09-06,Nordrhein-Westfalen,55.5,0.0
-2020-09-07,Nordrhein-Westfalen,226.0,1.0
 2020-09-06,Rheinland-Pfalz,14.0,1.0
-2020-09-07,Rheinland-Pfalz,68.0,0.0
-2020-09-07,Saarland,1.0,0.0
 2020-09-06,Saarland,0.5,0.0
-2020-09-07,Sachsen,27.0,0.0
 2020-09-06,Sachsen,1.5,0.0
 2020-09-06,Sachsen-Anhalt,2.0,0.0
-2020-09-07,Sachsen-Anhalt,1.0,0.0
 2020-09-06,Schleswig-Holstein,2.0,0.0
-2020-09-07,Schleswig-Holstein,19.0,0.0
 2020-09-06,Thüringen,3.5,0.5
+<<<<<<< HEAD
 2020-09-07,Thüringen,4.0,0.0
 2020-09-08,Baden-Württemberg,242.0,0.0
 2020-09-08,Bayern,456.0,2.0
@@ -3385,14 +3371,68 @@ date,country,new_cases,deaths
 2020-09-09,Baden-Württemberg,141.5,0.5
 2020-09-10,Baden-Württemberg,280.0,1.0
 2020-09-09,Bayern,266.0,0.0
+=======
+2020-09-07,Baden-Württemberg,110.5,0.0
+2020-09-07,Bayern,214.0,0.5
+2020-09-07,Berlin,66.0,0.0
+2020-09-07,Brandenburg,6.5,0.0
+2020-09-07,Bremen,1.5,0.0
+2020-09-07,Hamburg,11.0,0.0
+2020-09-07,Hessen,64.0,0.5
+2020-09-07,Mecklenburg-Vorpommern,3.0,0.0
+2020-09-07,Niedersachsen,55.5,0.0
+2020-09-07,Nordrhein-Westfalen,113.0,0.5
+2020-09-07,Rheinland-Pfalz,34.0,0.0
+2020-09-07,Saarland,0.5,0.0
+2020-09-07,Sachsen,13.5,0.0
+2020-09-07,Sachsen-Anhalt,0.5,0.0
+2020-09-07,Schleswig-Holstein,9.5,0.0
+2020-09-07,Thüringen,2.0,0.0
+2020-09-08,Baden-Württemberg,121.0,0.0
+2020-09-09,Baden-Württemberg,283.0,0.0
+2020-09-08,Bayern,227.5,1.0
+2020-09-09,Bayern,532.0,0.0
+2020-09-08,Berlin,28.0,0.0
+2020-09-09,Berlin,113.0,0.0
+2020-09-08,Brandenburg,7.5,0.0
+2020-09-09,Brandenburg,7.0,0.0
+2020-09-09,Bremen,9.0,0.0
+2020-09-08,Bremen,6.0,0.0
+2020-09-09,Hamburg,69.0,0.0
+2020-09-08,Hamburg,28.0,0.0
+2020-09-09,Hessen,113.0,1.0
+2020-09-08,Hessen,45.5,0.0
+2020-09-08,Mecklenburg-Vorpommern,2.5,0.0
+2020-09-09,Mecklenburg-Vorpommern,3.0,0.0
+2020-09-09,Niedersachsen,110.0,0.0
+2020-09-08,Niedersachsen,36.5,0.0
+2020-09-08,Nordrhein-Westfalen,106.0,1.5
+2020-09-09,Nordrhein-Westfalen,348.0,1.0
+2020-09-09,Rheinland-Pfalz,59.0,0.0
+2020-09-08,Rheinland-Pfalz,25.0,0.0
+2020-09-09,Saarland,12.0,1.0
+2020-09-08,Saarland,3.5,0.0
+2020-09-08,Sachsen,21.5,0.0
+2020-09-09,Sachsen,43.0,0.0
+2020-09-08,Sachsen-Anhalt,9.5,0.0
+2020-09-09,Sachsen-Anhalt,5.0,0.0
+2020-09-08,Schleswig-Holstein,10.5,0.0
+2020-09-09,Schleswig-Holstein,24.0,0.0
+2020-09-09,Thüringen,18.0,0.0
+2020-09-08,Thüringen,5.0,0.0
+2020-09-10,Baden-Württemberg,280.0,1.0
+>>>>>>> 5a54b37bf98560e0d02d69972ba6cd41431201f7
 2020-09-10,Bayern,394.0,0.0
 2020-09-10,Berlin,134.0,0.0
 2020-09-09,Berlin,56.5,0.0
 2020-09-10,Brandenburg,26.0,0.0
 2020-09-09,Brandenburg,3.5,0.0
 2020-09-10,Bremen,15.0,0.0
+<<<<<<< HEAD
 2020-09-09,Bremen,4.5,0.0
 2020-09-09,Hamburg,34.5,0.0
+=======
+>>>>>>> 5a54b37bf98560e0d02d69972ba6cd41431201f7
 2020-09-10,Hamburg,50.0,0.0
 2020-09-10,Hessen,102.0,2.0
 2020-09-09,Hessen,56.5,0.5
@@ -3400,9 +3440,13 @@ date,country,new_cases,deaths
 2020-09-09,Mecklenburg-Vorpommern,1.5,0.0
 2020-09-09,Niedersachsen,55.0,0.0
 2020-09-10,Niedersachsen,102.0,0.0
+<<<<<<< HEAD
 2020-09-09,Nordrhein-Westfalen,174.0,0.5
 2020-09-10,Nordrhein-Westfalen,317.0,1.0
 2020-09-09,Rheinland-Pfalz,29.5,0.0
+=======
+2020-09-10,Nordrhein-Westfalen,317.0,1.0
+>>>>>>> 5a54b37bf98560e0d02d69972ba6cd41431201f7
 2020-09-10,Rheinland-Pfalz,56.0,0.0
 2020-09-09,Saarland,6.0,0.5
 2020-09-10,Saarland,7.0,0.0
@@ -3478,8 +3522,13 @@ date,country,new_cases,deaths
 2020-09-14,Sachsen-Anhalt,8.0,0.0
 2020-09-14,Schleswig-Holstein,24.0,0.0
 2020-09-14,Thüringen,17.0,0.0
+<<<<<<< HEAD
 2020-09-15,Baden-Württemberg,366.0,0.0
 2020-09-15,Bayern,544.0,1.0
+=======
+2020-09-15,Baden-Württemberg,365.0,0.0
+2020-09-15,Bayern,545.0,1.0
+>>>>>>> 5a54b37bf98560e0d02d69972ba6cd41431201f7
 2020-09-15,Berlin,115.0,0.0
 2020-09-15,Brandenburg,16.0,0.0
 2020-09-15,Bremen,18.0,0.0
@@ -3499,7 +3548,11 @@ date,country,new_cases,deaths
 2020-09-16,Berlin,174.0,0.0
 2020-09-16,Brandenburg,18.0,0.0
 2020-09-16,Bremen,15.0,0.0
+<<<<<<< HEAD
 2020-09-16,Hamburg,56.0,0.0
+=======
+2020-09-16,Hamburg,55.0,0.0
+>>>>>>> 5a54b37bf98560e0d02d69972ba6cd41431201f7
 2020-09-16,Hessen,175.0,0.0
 2020-09-16,Niedersachsen,175.0,1.0
 2020-09-16,Nordrhein-Westfalen,469.0,2.0
@@ -3510,7 +3563,11 @@ date,country,new_cases,deaths
 2020-09-16,Schleswig-Holstein,30.0,0.0
 2020-09-16,Thüringen,25.0,0.0
 2020-09-17,Baden-Württemberg,366.0,0.0
+<<<<<<< HEAD
 2020-09-17,Bayern,532.0,1.0
+=======
+2020-09-17,Bayern,531.0,1.0
+>>>>>>> 5a54b37bf98560e0d02d69972ba6cd41431201f7
 2020-09-17,Berlin,176.0,0.0
 2020-09-17,Brandenburg,11.0,0.0
 2020-09-17,Bremen,4.0,0.0
@@ -3528,7 +3585,11 @@ date,country,new_cases,deaths
 2020-09-18,Baden-Württemberg,299.0,1.0
 2020-09-18,Bayern,458.0,2.0
 2020-09-18,Berlin,188.0,0.0
+<<<<<<< HEAD
 2020-09-18,Brandenburg,24.0,0.0
+=======
+2020-09-18,Brandenburg,23.0,0.0
+>>>>>>> 5a54b37bf98560e0d02d69972ba6cd41431201f7
 2020-09-18,Bremen,13.0,0.0
 2020-09-18,Hamburg,73.0,0.0
 2020-09-18,Hessen,120.0,1.0
@@ -3541,13 +3602,21 @@ date,country,new_cases,deaths
 2020-09-18,Sachsen-Anhalt,25.0,0.0
 2020-09-18,Schleswig-Holstein,33.0,0.0
 2020-09-18,Thüringen,33.0,0.0
+<<<<<<< HEAD
 2020-09-19,Baden-Württemberg,204.0,0.0
+=======
+2020-09-19,Baden-Württemberg,202.0,0.0
+>>>>>>> 5a54b37bf98560e0d02d69972ba6cd41431201f7
 2020-09-19,Bayern,310.0,0.0
 2020-09-19,Berlin,58.0,0.0
 2020-09-19,Brandenburg,7.0,0.0
 2020-09-19,Bremen,25.0,0.0
 2020-09-19,Hamburg,65.0,0.0
+<<<<<<< HEAD
 2020-09-19,Hessen,74.0,0.0
+=======
+2020-09-19,Hessen,73.0,0.0
+>>>>>>> 5a54b37bf98560e0d02d69972ba6cd41431201f7
 2020-09-19,Mecklenburg-Vorpommern,8.0,0.0
 2020-09-19,Niedersachsen,100.0,1.0
 2020-09-19,Nordrhein-Westfalen,397.0,1.0
@@ -3573,8 +3642,13 @@ date,country,new_cases,deaths
 2020-09-20,Schleswig-Holstein,17.0,0.0
 2020-09-20,Thüringen,6.0,0.0
 2020-09-21,Baden-Württemberg,180.0,0.0
+<<<<<<< HEAD
 2020-09-21,Bayern,388.0,1.0
 2020-09-21,Berlin,194.0,0.0
+=======
+2020-09-21,Bayern,387.0,1.0
+2020-09-21,Berlin,193.0,0.0
+>>>>>>> 5a54b37bf98560e0d02d69972ba6cd41431201f7
 2020-09-21,Brandenburg,17.0,0.0
 2020-09-21,Bremen,5.0,0.0
 2020-09-21,Hamburg,45.0,0.0
@@ -3588,12 +3662,21 @@ date,country,new_cases,deaths
 2020-09-21,Sachsen-Anhalt,7.0,0.0
 2020-09-21,Schleswig-Holstein,28.0,0.0
 2020-09-21,Thüringen,27.0,0.0
+<<<<<<< HEAD
 2020-09-22,Baden-Württemberg,229.0,0.0
 2020-09-22,Bayern,341.0,0.0
 2020-09-22,Berlin,168.0,0.0
 2020-09-22,Brandenburg,22.0,0.0
 2020-09-22,Bremen,24.0,0.0
 2020-09-22,Hamburg,79.0,0.0
+=======
+2020-09-22,Baden-Württemberg,222.0,0.0
+2020-09-22,Bayern,338.0,0.0
+2020-09-22,Berlin,168.0,0.0
+2020-09-22,Brandenburg,22.0,0.0
+2020-09-22,Bremen,24.0,0.0
+2020-09-22,Hamburg,78.0,0.0
+>>>>>>> 5a54b37bf98560e0d02d69972ba6cd41431201f7
 2020-09-22,Hessen,128.0,0.0
 2020-09-22,Mecklenburg-Vorpommern,12.0,0.0
 2020-09-22,Niedersachsen,138.0,0.0
@@ -3604,18 +3687,28 @@ date,country,new_cases,deaths
 2020-09-22,Sachsen-Anhalt,29.0,0.0
 2020-09-22,Schleswig-Holstein,32.0,0.0
 2020-09-22,Thüringen,17.0,0.0
+<<<<<<< HEAD
 2020-09-23,Baden-Württemberg,310.0,0.0
 2020-09-23,Bayern,423.0,0.0
+=======
+2020-09-23,Baden-Württemberg,294.0,0.0
+2020-09-23,Bayern,421.0,0.0
+>>>>>>> 5a54b37bf98560e0d02d69972ba6cd41431201f7
 2020-09-23,Berlin,179.0,0.0
 2020-09-23,Brandenburg,18.0,0.0
 2020-09-23,Bremen,11.0,0.0
 2020-09-23,Hamburg,76.0,0.0
+<<<<<<< HEAD
 2020-09-23,Hessen,171.0,1.0
+=======
+2020-09-23,Hessen,170.0,1.0
+>>>>>>> 5a54b37bf98560e0d02d69972ba6cd41431201f7
 2020-09-23,Mecklenburg-Vorpommern,7.0,0.0
 2020-09-23,Niedersachsen,183.0,1.0
 2020-09-23,Nordrhein-Westfalen,527.0,1.0
 2020-09-23,Rheinland-Pfalz,66.0,0.0
 2020-09-23,Saarland,8.0,0.0
+<<<<<<< HEAD
 2020-09-23,Sachsen,74.0,0.0
 2020-09-23,Sachsen-Anhalt,20.0,0.0
 2020-09-23,Schleswig-Holstein,48.0,0.0
@@ -3626,12 +3719,25 @@ date,country,new_cases,deaths
 2020-09-24,Brandenburg,31.0,0.0
 2020-09-24,Bremen,22.0,0.0
 2020-09-24,Hamburg,90.0,0.0
+=======
+2020-09-23,Sachsen,73.0,0.0
+2020-09-23,Sachsen-Anhalt,20.0,0.0
+2020-09-23,Schleswig-Holstein,48.0,0.0
+2020-09-23,Thüringen,20.0,0.0
+2020-09-24,Baden-Württemberg,272.0,0.0
+2020-09-24,Bayern,390.0,0.0
+2020-09-24,Berlin,225.0,0.0
+2020-09-24,Brandenburg,30.0,0.0
+2020-09-24,Bremen,22.0,0.0
+2020-09-24,Hamburg,86.0,0.0
+>>>>>>> 5a54b37bf98560e0d02d69972ba6cd41431201f7
 2020-09-24,Hessen,210.0,0.0
 2020-09-24,Mecklenburg-Vorpommern,5.0,0.0
 2020-09-24,Niedersachsen,173.0,0.0
 2020-09-24,Nordrhein-Westfalen,607.0,0.0
 2020-09-24,Rheinland-Pfalz,93.0,0.0
 2020-09-24,Saarland,6.0,0.0
+<<<<<<< HEAD
 2020-09-24,Sachsen,98.0,0.0
 2020-09-24,Sachsen-Anhalt,15.0,0.0
 2020-09-24,Schleswig-Holstein,54.0,0.0
@@ -3677,3 +3783,37 @@ date,country,new_cases,deaths
 2020-09-27,Sachsen-Anhalt,1.0,0.0
 2020-09-27,Schleswig-Holstein,4.0,0.0
 2020-09-27,Thüringen,3.0,0.0
+=======
+2020-09-24,Sachsen,95.0,0.0
+2020-09-24,Sachsen-Anhalt,15.0,0.0
+2020-09-24,Schleswig-Holstein,53.0,0.0
+2020-09-24,Thüringen,21.0,0.0
+2020-09-25,Baden-Württemberg,123.0,0.0
+2020-09-25,Bayern,326.0,0.0
+2020-09-25,Berlin,172.0,0.0
+2020-09-25,Brandenburg,18.0,0.0
+2020-09-25,Bremen,38.0,0.0
+2020-09-25,Hamburg,68.0,0.0
+2020-09-25,Hessen,206.0,0.0
+2020-09-25,Mecklenburg-Vorpommern,7.0,0.0
+2020-09-25,Niedersachsen,142.0,0.0
+2020-09-25,Nordrhein-Westfalen,551.0,0.0
+2020-09-25,Rheinland-Pfalz,69.0,1.0
+2020-09-25,Saarland,15.0,0.0
+2020-09-25,Sachsen,37.0,0.0
+2020-09-25,Sachsen-Anhalt,32.0,0.0
+2020-09-25,Schleswig-Holstein,50.0,0.0
+2020-09-25,Thüringen,15.0,0.0
+2020-09-26,Bayern,162.0,1.0
+2020-09-26,Berlin,33.0,0.0
+2020-09-26,Brandenburg,1.0,0.0
+2020-09-26,Bremen,47.0,0.0
+2020-09-26,Hessen,118.0,0.0
+2020-09-26,Nordrhein-Westfalen,359.0,0.0
+2020-09-26,Rheinland-Pfalz,4.0,0.0
+2020-09-26,Saarland,6.0,0.0
+2020-09-26,Sachsen,7.0,0.0
+2020-09-26,Sachsen-Anhalt,6.0,0.0
+2020-09-26,Schleswig-Holstein,15.0,0.0
+2020-09-26,Thüringen,3.0,0.0
+>>>>>>> 5a54b37bf98560e0d02d69972ba6cd41431201f7
