@@ -123,7 +123,9 @@ function gen_df(country::String, d::Array{Int64}, c::Array{Int64}, r::Array{Int6
 end
 
 function country_data(country)
-    d = death[death.country .== country, 2:end] |> Array |> Iterators.flatten |> collect .|> Int
+    d = death[death.country .== country, 2:end] |> Array
+    d = [ismissing(x) ? 0 : x for x in d]
+    d = d |> Iterators.flatten |> collect .|> Int
     dates = [Dates.Date(2020, 1, 22) + Dates.Day(day) for day in 1:length(d)]
     c = confirmed[confirmed.country .== country, 2:end] |> Array |> Iterators.flatten |> collect .|> Int
     r = recovered[recovered.country .== country, 2:end]
