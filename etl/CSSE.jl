@@ -134,7 +134,7 @@ function country_data(country)
     else
         r = r[1, :] |> DataFrame
     end
-    r = r |> Array |> Iterators.flatten |> collect
+    r = r |> Array |> Iterators.flatten |> collect .|> Int
     df = gen_df(country, d, c, r, dates)
     return df
 end
