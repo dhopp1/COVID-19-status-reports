@@ -140,6 +140,7 @@ function country_data(country)
 end
 
 all_countries = death.country |> unique |> sort
+all_countries = all_countries[all_countries .!= ""]
 println("CSSE: processing data")
 all_country_data = vcat([country_data(country) for country in all_countries]...)
 
