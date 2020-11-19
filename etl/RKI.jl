@@ -8,7 +8,7 @@ Dates,
 HTTP,
 JSON
 
-days_history = 50
+days_history = 20
 
 function api_call(;start_date::Date, end_date::Date, bundesland::String)
     url = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_COVID19/FeatureServer/0/query?where=Bundesland%20%3D%20%27$(bundesland)%27%20AND%20Meldedatum%20%3E%3D%20TIMESTAMP%20%27$(start_date)%2000%3A00%3A00%27%20AND%20Meldedatum%20%3C%3D%20TIMESTAMP%20%27$(end_date)%2000%3A00%3A00%27&outFields=Bundesland,AnzahlFall,AnzahlTodesfall,Meldedatum&outSR=4326&f=json"
